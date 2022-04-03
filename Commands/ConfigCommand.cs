@@ -4,6 +4,7 @@ using TAB2.Configuration;
 
 namespace TAB2.Commands;
 
+// Very messy, but it works. Don't touch.
 public class ConfigCommand: Command
 {
     private readonly ConfigService configService;
@@ -13,7 +14,6 @@ public class ConfigCommand: Command
         this.configService = configService;
     }
 
-
     public override SlashCommandBuilder GetSlashCommand()
     {
         var keyOptionBuilder = new SlashCommandOptionBuilder()
@@ -21,6 +21,7 @@ public class ConfigCommand: Command
             .WithDescription("The config key.")
             .WithType(ApplicationCommandOptionType.String)
             .WithRequired(false);
+        
         foreach (var info in configService.GetConfigValues())
         {
             keyOptionBuilder.AddChoice(info.Name, info.Name);
