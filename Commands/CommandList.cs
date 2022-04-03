@@ -15,11 +15,11 @@ public class CommandList : IDisposable
     
     private readonly IServiceCollection serviceCollection; 
 
-    public CommandList(DiscordSocketClient client)
+    public CommandList(DiscordSocketClient client, IServiceCollection services)
     {
         this.client = client;
-        
-        serviceCollection = new ServiceCollection()
+
+        serviceCollection = services
             .AddSingleton(this)
             .AddSingleton(client);
 
@@ -31,8 +31,9 @@ public class CommandList : IDisposable
 
     private void RegisterCommands()
     {
-        RegisterCommand<HelloWorldCommand>();
         RegisterCommand<RefreshCommandsCommand>();
+        RegisterCommand<HelloWorldCommand>();
+        RegisterCommand<ConfigCommand>();
     }
 
     private async Task ClientOnJoinedGuild(SocketGuild guild)

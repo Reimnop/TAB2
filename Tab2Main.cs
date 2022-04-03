@@ -1,6 +1,8 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using Microsoft.Extensions.DependencyInjection;
 using TAB2.Commands;
+using TAB2.Configuration;
 
 namespace TAB2;
 
@@ -9,11 +11,17 @@ public class Tab2Main : IDisposable
     private readonly DiscordSocketClient client;
     private readonly CommandList commands;
 
+    private readonly ConfigService configService;
+
     public Tab2Main()
     {
         DiscordSocketConfig config = new DiscordSocketConfig();
         client = new DiscordSocketClient(config);
-        commands = new CommandList(client);
+
+        var services = new ServiceCollection()
+            .AddSingleton<ConfigService>();
+        
+        commands = new CommandList(client, services);
     }
 
     public async Task Run(string token)
