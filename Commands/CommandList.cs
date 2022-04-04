@@ -57,7 +57,7 @@ public class CommandList : IDisposable
 
     private void BuildCommands()
     {
-        using ServiceProvider serviceProvider = serviceCollection.BuildServiceProvider();
+        using var serviceProvider = serviceCollection.BuildServiceProvider();
         for (int i = 0; i < registeredCommandTypes.Count; i++)
         {
             Command command = (Command)serviceProvider.GetRequiredService(registeredCommandTypes[i]);
