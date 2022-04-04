@@ -26,6 +26,7 @@ public class ConfigService
     private void RegisterConfigValues()
     {
         RegisterConfigValue<IntegerValue>("testValue", 0);
+        RegisterConfigValue<FloatValue>("testValueF", 2.0f);
     }
 
     public IEnumerable<ConfigValueInfo> GetConfigValues()

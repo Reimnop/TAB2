@@ -1,19 +1,19 @@
 ﻿namespace TAB2.Configuration.Types;
 
-public class IntegerValue : ConfigValue
+public class FloatValue : ConfigValue
 {
-    public override string TypeName => "Integer";
+    public override string TypeName => "Float";
 
-    private int value;
+    private float value;
     
     public override bool TryParse(string value)
     {
-        return int.TryParse(value, out this.value);
+        return float.TryParse(value, out this.value);
     }
 
     public override void SetValue(object value)
     {
-        this.value = (int)value;
+        this.value = (float) value;
     }
 
     public override object GetValue()
