@@ -6,14 +6,14 @@ using TAB2.Configuration;
 
 namespace TAB2;
 
-public class Tab2Main : IDisposable
+public class BotMain : IDisposable
 {
     private readonly DiscordSocketClient client;
     private readonly CommandList commands;
 
     private readonly ConfigService configService;
 
-    public Tab2Main()
+    public BotMain()
     {
         DiscordSocketConfig config = new DiscordSocketConfig();
         client = new DiscordSocketClient(config);
