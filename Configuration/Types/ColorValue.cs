@@ -4,7 +4,7 @@ namespace TAB2.Configuration.Types;
 
 public class ColorValue : ConfigValue
 {
-    public override string TypeName { get; }
+    public override string TypeName => "Color";
 
     private Color color;
     
