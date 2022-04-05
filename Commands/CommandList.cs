@@ -32,7 +32,7 @@ public class CommandList : IDisposable
     private void RegisterCommands()
     {
         RegisterCommand<RefreshCommandsCommand>();
-        RegisterCommand<HelloWorldCommand>();
+        RegisterCommand<PingCommand>();
         RegisterCommand<ConfigCommand>();
     }
 
@@ -80,7 +80,7 @@ public class CommandList : IDisposable
             return;
         }
 
-        await command.RespondAsync("Error: How did you even run a non-existent slash command?");
+        await command.RespondAsync("Error: How did you even run a non-existent slash command?", ephemeral: true);
     }
     
     public void Dispose()

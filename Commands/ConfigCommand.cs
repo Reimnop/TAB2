@@ -54,7 +54,7 @@ public class ConfigCommand: Command
             {
                 var embedBuilder = new EmbedBuilder()
                     .WithTitle("Config list")
-                    .WithColor(Color.Green)
+                    .WithColor(ConfigHelper.GetEmbedColor(configService))
                     .WithCurrentTimestamp();
 
                 foreach (var info in configService.GetConfigValues())
@@ -84,7 +84,7 @@ public class ConfigCommand: Command
                     var embedBuilder = new EmbedBuilder()
                         .WithTitle(key)
                         .WithDescription(value.GetValue().ToString())
-                        .WithColor(Color.Green)
+                        .WithColor(ConfigHelper.GetEmbedColor(configService))
                         .WithCurrentTimestamp();
                 
                     await command.RespondAsync(embed: embedBuilder.Build());
@@ -124,7 +124,7 @@ public class ConfigCommand: Command
                         var embedBuilder = new EmbedBuilder()
                             .WithTitle(key)
                             .WithDescription($"{oldValue} -> {value.GetValue().ToString()}")
-                            .WithColor(Color.Green)
+                            .WithColor(ConfigHelper.GetEmbedColor(configService))
                             .WithCurrentTimestamp();
                 
                         await command.RespondAsync(embed: embedBuilder.Build());

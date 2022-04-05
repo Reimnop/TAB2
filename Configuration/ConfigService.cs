@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Discord;
 using Newtonsoft.Json.Linq;
 using TAB2.Configuration.Types;
 
@@ -25,8 +26,7 @@ public class ConfigService
 
     private void RegisterConfigValues()
     {
-        RegisterConfigValue<IntegerValue>("testValue", 0);
-        RegisterConfigValue<FloatValue>("testValueF", 2.0f);
+        RegisterConfigValue<ColorValue>("embedColor", Color.Green);
     }
 
     public IEnumerable<ConfigValueInfo> GetConfigValues()
@@ -46,6 +46,16 @@ public class ConfigService
         return false;
     }
 
+    public ConfigValue GetConfigValue(string key)
+    {
+        if (TryGetConfigValue(key, out var value))
+        {
+            return value;
+        }
+
+        throw new KeyNotFoundException($"Could not find the config key named \"{key}\"!");
+    }
+
     public void ReadConfigValues()
     {
         // If config doesn't exist, write and do nothing else
@@ -59,7 +69,10 @@ public class ConfigService
         JObject json = JObject.Parse(jsonString);
         foreach (var kvp in json)
         {
-            configValueInfos[configValueIndices[kvp.Key]].Value.TryParse(kvp.Value.ToString());
+            if (TryGetConfigValue(kvp.Key, out var value))
+            {
+                value.TryParse(kvp.Value.ToString());
+            }
         }
     }
 
@@ -68,7 +81,7 @@ public class ConfigService
         JObject json = new JObject();
         foreach (var info in configValueInfos)
         {
-            json[info.Name] = info.Value.GetValue().ToString();
+            json[info.Name] = info.Value.ToString();
         }
         File.WriteAllText(ConfigFileName, json.ToString());
     }

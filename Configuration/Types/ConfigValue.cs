@@ -8,4 +8,6 @@ public abstract class ConfigValue
 
     public abstract void SetValue(object value);
     public abstract object GetValue();
+
+    public abstract override string ToString();
 }
