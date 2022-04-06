@@ -27,8 +27,8 @@ public class BotMain : IDisposable
     public async Task Run(string token)
     {
         client.Log += ClientOnLog;
-        client.SlashCommandExecuted += ClientOnSlashCommandExecuted; 
-        
+        client.SlashCommandExecuted += ClientOnSlashCommandExecuted;
+
         await client.LoginAsync(TokenType.Bot, token);
         await client.StartAsync();
         

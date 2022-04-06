@@ -27,6 +27,21 @@ public class CommandList : IDisposable
         BuildCommands();
 
         client.JoinedGuild += ClientOnJoinedGuild;
+        client.MessageReceived += ClientOnMessageReceived;
+    }
+
+    private async Task ClientOnMessageReceived(SocketMessage arg)
+    {
+        if (arg.Author.IsBot)
+        {
+            return;
+        }
+
+        if (arg.Channel is SocketGuildChannel channel && arg.Content == "@@tab2ForceRefreshCmds")
+        {
+            await RefreshCommands(channel.Guild);
+            await arg.Channel.SendMessageAsync("Force refresh requested!");
+        }
     }
 
     private void RegisterCommands()
@@ -86,6 +101,7 @@ public class CommandList : IDisposable
     public void Dispose()
     {
         client.JoinedGuild -= ClientOnJoinedGuild;
+        client.MessageReceived -= ClientOnMessageReceived;
         
         foreach (var command in commands)
         {
