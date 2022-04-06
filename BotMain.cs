@@ -16,6 +16,8 @@ public class BotMain : IDisposable
     public BotMain()
     {
         DiscordSocketConfig config = new DiscordSocketConfig();
+        config.GatewayIntents = GatewayIntents.All;
+        config.AlwaysDownloadUsers = true;
         client = new DiscordSocketClient(config);
 
         var services = new ServiceCollection()
@@ -35,9 +37,9 @@ public class BotMain : IDisposable
         await Task.Delay(Timeout.Infinite);
     }
 
-    private async Task ClientOnSlashCommandExecuted(SocketSlashCommand command)
+    private Task ClientOnSlashCommandExecuted(SocketSlashCommand command)
     {
-        await commands.ExecuteCommand(command);
+        return Task.Run(() => commands.ExecuteCommand(command));
     }
 
     private Task ClientOnLog(LogMessage arg)

@@ -47,8 +47,9 @@ public class CommandList : IDisposable
     private void RegisterCommands()
     {
         RegisterCommand<RefreshCommandsCommand>();
-        RegisterCommand<PingCommand>();
         RegisterCommand<ConfigCommand>();
+        RegisterCommand<PingCommand>();
+        RegisterCommand<StatsCommand>();
     }
 
     private async Task ClientOnJoinedGuild(SocketGuild guild)
