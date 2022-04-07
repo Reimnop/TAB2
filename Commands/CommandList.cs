@@ -55,13 +55,7 @@ public class CommandList : IDisposable
 
     private async Task ClientOnJoinedGuild(SocketGuild guild)
     {
-        foreach (var command in commands)
-        {
-            if (command.ShouldAddToGuild(guild))
-            {
-                await guild.CreateApplicationCommandAsync(command.GetSlashCommand().Build());
-            }
-        }
+        await RefreshCommands(guild);
     }
 
     public async Task RefreshCommands(SocketGuild guild)
