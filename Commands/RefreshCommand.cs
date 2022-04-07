@@ -3,11 +3,11 @@ using Discord.WebSocket;
 
 namespace TAB2.Commands;
 
-public class RefreshCommandsCommand : Command
+public class RefreshCommand : Command
 {
     private readonly CommandList commandList;
 
-    public RefreshCommandsCommand(CommandList commandList)
+    public RefreshCommand(CommandList commandList)
     {
         this.commandList = commandList;
     }

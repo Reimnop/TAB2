@@ -46,7 +46,7 @@ public class CommandList : IDisposable
 
     private void RegisterCommands()
     {
-        RegisterCommand<RefreshCommandsCommand>();
+        RegisterCommand<RefreshCommand>();
         RegisterCommand<ConfigCommand>();
         RegisterCommand<PingCommand>();
         RegisterCommand<StatsCommand>();
