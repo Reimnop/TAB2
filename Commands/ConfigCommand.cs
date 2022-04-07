@@ -14,6 +14,11 @@ public class ConfigCommand: Command
         this.configService = configService;
     }
 
+    public override bool ShouldAddToGuild(SocketGuild guild)
+    {
+        return true;
+    }
+
     public override SlashCommandBuilder GetSlashCommand()
     {
         var keyOptionBuilder = new SlashCommandOptionBuilder()

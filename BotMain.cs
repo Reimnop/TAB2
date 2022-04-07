@@ -39,7 +39,8 @@ public class BotMain : IDisposable
 
     private Task ClientOnSlashCommandExecuted(SocketSlashCommand command)
     {
-        return Task.Run(() => commands.ExecuteCommand(command));
+        _ = Task.Run(() => commands.ExecuteCommand(command));
+        return Task.CompletedTask;
     }
 
     private Task ClientOnLog(LogMessage arg)

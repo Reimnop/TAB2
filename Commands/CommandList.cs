@@ -50,13 +50,17 @@ public class CommandList : IDisposable
         RegisterCommand<ConfigCommand>();
         RegisterCommand<PingCommand>();
         RegisterCommand<StatsCommand>();
+        RegisterCommand<ChatCommand>();
     }
 
     private async Task ClientOnJoinedGuild(SocketGuild guild)
     {
         foreach (var command in commands)
         {
-            await guild.CreateApplicationCommandAsync(command.GetSlashCommand().Build());
+            if (command.ShouldAddToGuild(guild))
+            {
+                await guild.CreateApplicationCommandAsync(command.GetSlashCommand().Build());
+            }
         }
     }
 
@@ -65,7 +69,10 @@ public class CommandList : IDisposable
         var applicationCommands = new List<ApplicationCommandProperties>();
         foreach (var command in commands)
         {
-            applicationCommands.Add(command.GetSlashCommand().Build());
+            if (command.ShouldAddToGuild(guild))
+            {
+                applicationCommands.Add(command.GetSlashCommand().Build());
+            }
         }
 
         await guild.BulkOverwriteApplicationCommandAsync(applicationCommands.ToArray());

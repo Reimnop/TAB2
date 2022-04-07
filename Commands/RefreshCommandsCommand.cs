@@ -11,7 +11,12 @@ public class RefreshCommandsCommand : Command
     {
         this.commandList = commandList;
     }
-    
+
+    public override bool ShouldAddToGuild(SocketGuild guild)
+    {
+        return true;
+    }
+
     public override SlashCommandBuilder GetSlashCommand()
     {
         SlashCommandBuilder commandBuilder = new SlashCommandBuilder()
