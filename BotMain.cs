@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using log4net;
 using Microsoft.Extensions.DependencyInjection;
 using TAB2.Commands;
 using TAB2.Configuration;
@@ -11,10 +12,12 @@ public class BotMain : IDisposable
     private readonly DiscordSocketClient client;
     private readonly CommandList commands;
 
-    private readonly ConfigService configService;
+    private readonly ILog log;
 
     public BotMain()
     {
+        log = LogManager.GetLogger("Discord");
+        
         DiscordSocketConfig config = new DiscordSocketConfig();
         config.GatewayIntents = GatewayIntents.All;
         config.AlwaysDownloadUsers = true;
@@ -43,9 +46,27 @@ public class BotMain : IDisposable
         return Task.CompletedTask;
     }
 
-    private Task ClientOnLog(LogMessage arg)
+    private Task ClientOnLog(LogMessage msg)
     {
-        Console.WriteLine(arg.ToString());
+        switch (msg.Severity)
+        {
+            case LogSeverity.Debug:
+                log.Debug(msg.Message);
+                break;
+            case LogSeverity.Info:
+                log.Info(msg.Message);
+                break;
+            case LogSeverity.Warning:
+                log.Warn(msg.Message);
+                break;
+            case LogSeverity.Error:
+                log.Error(msg.Message, msg.Exception);
+                break;
+            case LogSeverity.Critical:
+                log.Fatal(msg.Message, msg.Exception);
+                break;
+        }
+        
         return Task.CompletedTask;
     }
 
