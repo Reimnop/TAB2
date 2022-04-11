@@ -51,6 +51,7 @@ public class CommandList : IDisposable
         RegisterCommand<PingCommand>();
         RegisterCommand<StatsCommand>();
         RegisterCommand<ChatCommand>();
+        RegisterCommand<McLookupCommand>();
     }
 
     private async Task ClientOnJoinedGuild(SocketGuild guild)
