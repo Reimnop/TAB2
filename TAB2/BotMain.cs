@@ -1,49 +1,59 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using log4net;
-using Microsoft.Extensions.DependencyInjection;
-using TAB2.Commands;
-using TAB2.Configuration;
+using TAB2.Module;
 
 namespace TAB2;
 
 public class BotMain : IDisposable
 {
-    private readonly DiscordSocketClient client;
-    private readonly CommandList commands;
-
     private readonly ILog log;
+    
+    private readonly DiscordSocketClient client;
+    private readonly ModuleManager moduleManager;
 
     public BotMain()
     {
         log = LogManager.GetLogger("Discord");
         
         DiscordSocketConfig config = new DiscordSocketConfig();
-        config.GatewayIntents = GatewayIntents.All;
-        config.AlwaysDownloadUsers = true;
+        config.DefaultRetryMode = RetryMode.AlwaysRetry;
+
         client = new DiscordSocketClient(config);
 
-        var services = new ServiceCollection()
-            .AddSingleton<ConfigService>();
-        
-        commands = new CommandList(client, services);
+        moduleManager = new ModuleManager();
     }
 
     public async Task Run(string token)
     {
+        moduleManager.LoadModules("Modules");
+        moduleManager.InitializeModules();
+
         client.Log += ClientOnLog;
-        client.SlashCommandExecuted += ClientOnSlashCommandExecuted;
+        
+        client.Ready += ClientOnReady;
+        client.MessageReceived += ClientOnMessageReceived;
 
         await client.LoginAsync(TokenType.Bot, token);
         await client.StartAsync();
-        
+
         await Task.Delay(Timeout.Infinite);
     }
 
-    private Task ClientOnSlashCommandExecuted(SocketSlashCommand command)
+    private Task ClientOnReady()
     {
-        _ = Task.Run(() => commands.ExecuteCommand(command));
-        return Task.CompletedTask;
+        return moduleManager.RunOnAllModules(module =>
+        {
+            module.EventBus.RaiseReadyEvent();
+        });
+    }
+
+    private Task ClientOnMessageReceived(SocketMessage message)
+    {
+        return moduleManager.RunOnAllModules(module =>
+        {
+            module.EventBus.RaiseMessageReceivedEvent(message);
+        });
     }
 
     private Task ClientOnLog(LogMessage msg)
@@ -51,19 +61,22 @@ public class BotMain : IDisposable
         switch (msg.Severity)
         {
             case LogSeverity.Debug:
-                log.Debug(msg.Message);
+                log.Debug(msg.Message, msg.Exception);
                 break;
             case LogSeverity.Info:
-                log.Info(msg.Message);
+                log.Info(msg.Message, msg.Exception);
                 break;
             case LogSeverity.Warning:
-                log.Warn(msg.Message);
+                log.Warn(msg.Message, msg.Exception);
                 break;
             case LogSeverity.Error:
                 log.Error(msg.Message, msg.Exception);
                 break;
             case LogSeverity.Critical:
                 log.Fatal(msg.Message, msg.Exception);
+                break;
+            case LogSeverity.Verbose:
+                log.Debug(msg.Message, msg.Exception);
                 break;
         }
         

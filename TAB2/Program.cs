@@ -3,18 +3,17 @@ using log4net;
 using log4net.Config;
 using TAB2;
 
-const string TokenEnvironmentName = "TAB2_TOKEN";
 const string LogConfigFile = "log4net_cfg.xml";
 
 XmlConfigurator.Configure(new FileInfo(LogConfigFile));
 
 ILog log = LogManager.GetLogger("Entry");
 
-string? token = Environment.GetEnvironmentVariable(TokenEnvironmentName, EnvironmentVariableTarget.Machine);
+string? token = args.Length > 0 ? args[0] : null;
 
 if (token == null)
 {
-    log.Fatal($"Could not find bot token! Please set {TokenEnvironmentName} environment variable to your bot token!");
+    log.Fatal("No bot token!");
     return;
 }
 

@@ -1,8 +1,8 @@
 ﻿using Discord;
 
-namespace TAB2.Configuration.Types;
+namespace TAB2.Api.Configuration.Types;
 
-public class ColorValue : ConfigValue
+public class ColorValue : ConfigValue<Color>
 {
     public override string TypeName => "Color";
 
@@ -38,19 +38,19 @@ public class ColorValue : ConfigValue
             return false;
         }
     }
-
-    public override void SetValue(object value)
-    {
-        color = (Color) value;
-    }
-
-    public override object GetValue()
-    {
-        return color;
-    }
-
-    public override string ToString()
+    
+    public override string EncodeToString()
     {
         return color.ToString();
+    }
+
+    public override void SetValue(Color value)
+    {
+        color = value;
+    }
+
+    public override Color GetValue()
+    {
+        return color;
     }
 }
