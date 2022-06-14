@@ -33,14 +33,12 @@ public class BotMain : IDisposable
         moduleManager.LoadModules("Modules");
         
         // Module initialization steps
-        moduleManager.RunOnAllModules(module =>
-        {
-            module.BaseModule.OnCommandRegister(module.CommandDispatcher);
-        });
+        await moduleManager.RunOnAllModulesAsync(module => Task.Run(() => module.BaseModule.OnCommandRegister(module.CommandDispatcher)));
 
         // Module events
-        client.Ready += () => Task.Run(() => moduleManager.RunOnAllModules(module => module.BaseModule.OnReady()));
-        client.MessageReceived += message => Task.Run(() => moduleManager.RunOnAllModules(module => module.BaseModule.OnMessageReceived(message)));
+        // Everything is a one-liner
+        client.Ready += () => moduleManager.RunOnAllModulesAsync(module => Task.Run(() => module.BaseModule.OnReady()));
+        client.MessageReceived += message => moduleManager.RunOnAllModulesAsync(module => Task.Run(() => module.BaseModule.OnMessageReceived(message)));
         
         client.Log += ClientOnLog;
         client.MessageReceived += ClientOnMessageReceived;
@@ -100,26 +98,28 @@ public class BotMain : IDisposable
         
         return Task.Run(async () =>
         {
-            // wtf
-            Task task = null;
-            if (!moduleManager.TryRunOnModule(id, module => task = RunCommand(module.CommandDispatcher, message, new CommandContext())))
+            CommandSource source = new CommandSource((SocketTextChannel) message.Channel);
+            
+            if (!await moduleManager.TryRunOnModuleAsync(
+                    id,
+                    module => RunCommand(module.CommandDispatcher, subCommand, (SocketTextChannel) message.Channel, source)
+                    )
+                )
             {
                 await message.Channel.SendMessageAsync($"Module with id '{id}' does not exist!");
             }
-
-            await task;
         });
     }
 
-    private async Task RunCommand(CommandDispatcher<CommandContext> dispatcher, SocketMessage message, CommandContext context)
+    private async Task RunCommand(CommandDispatcher<CommandSource> dispatcher, string command, SocketTextChannel channel, CommandSource source)
     {
         try
         {
-            dispatcher.Execute(message.Content, context);
+            dispatcher.Execute(command, source);
         }
         catch (CommandSyntaxException e)
         {
-            await message.Channel.SendMessageAsync(e.Message);
+            await channel.SendMessageAsync(e.Message);
         }
     }
 

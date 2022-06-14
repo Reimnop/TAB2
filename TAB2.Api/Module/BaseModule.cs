@@ -12,7 +12,7 @@ public abstract class BaseModule
     {
     }
 
-    public virtual void OnCommandRegister(CommandDispatcher<CommandContext> dispatcher)
+    public virtual void OnCommandRegister(CommandDispatcher<CommandSource> dispatcher)
     {
     }
 

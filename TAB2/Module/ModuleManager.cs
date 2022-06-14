@@ -5,7 +5,7 @@ using TAB2.Api.Module;
 
 namespace TAB2.Module;
 
-public delegate void ModuleRunDelegate(Module module);
+public delegate Task ModuleRunTaskDelegate(Module module);
 
 public class ModuleManager
 {
@@ -68,22 +68,22 @@ public class ModuleManager
         return new Module(entryPoint, attribute);
     }
 
-    public void RunOnAllModules(ModuleRunDelegate moduleRunDelegate)
+    public async Task RunOnAllModulesAsync(ModuleRunTaskDelegate moduleRunTask)
     {
         foreach (Module module in loadedModules.Values)
         {
-            moduleRunDelegate(module);
+            await moduleRunTask(module);
         }
     }
 
-    public bool TryRunOnModule(string id, ModuleRunDelegate moduleRunDelegate)
+    public async Task<bool> TryRunOnModuleAsync(string id, ModuleRunTaskDelegate moduleRunTask)
     {
         if (!loadedModules.TryGetValue(id, out Module? module))
         {
             return false;
         }
 
-        moduleRunDelegate(module);
+        await moduleRunTask(module);
         return true;
     }
 }

@@ -1,5 +1,8 @@
-﻿using Discord.WebSocket;
+﻿using Brigadier.NET;
+using Brigadier.NET.Builder;
+using Discord.WebSocket;
 using log4net;
+using TAB2.Api.Command;
 using TAB2.Api.Module;
 
 namespace TAB2.TestModule;
@@ -19,8 +22,19 @@ public class TestModule : BaseModule
         log.Info("Test Module is ready!");
     }
 
+    public override void OnCommandRegister(CommandDispatcher<CommandSource> dispatcher)
+    {
+        dispatcher.Register(a => a.Literal("helloworld")
+            .Executes(context =>
+            {
+                context.Source.Channel.SendMessageAsync("Hello world!").Wait();
+                return 1;
+            })
+        );
+    }
+
     public override void OnMessageReceived(SocketMessage message)
     {
-        log.Info($"{message.Author.Username} sent {message.Content}");
+        log.Info($"{message.Author.Username} sent '{message.Content}'");
     }
 }

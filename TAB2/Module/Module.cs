@@ -8,13 +8,13 @@ public class Module
 {
     public BaseModule BaseModule { get; set; }
     public ModuleEntryAttribute Attribute { get; set; }
-    public CommandDispatcher<CommandContext> CommandDispatcher { get; set; }
+    public CommandDispatcher<CommandSource> CommandDispatcher { get; set; }
 
     public Module(BaseModule baseModule, ModuleEntryAttribute attribute)
     {
         BaseModule = baseModule;
         Attribute = attribute;
 
-        CommandDispatcher = new CommandDispatcher<CommandContext>();
+        CommandDispatcher = new CommandDispatcher<CommandSource>();
     }
 }
