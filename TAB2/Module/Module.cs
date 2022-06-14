@@ -1,18 +1,20 @@
-﻿using TAB2.Api.Events;
+﻿using Brigadier.NET;
+using TAB2.Api.Command;
 using TAB2.Api.Module;
 
 namespace TAB2.Module;
 
 public class Module
 {
-    public IModule EntryPoint { get; set; }
+    public BaseModule BaseModule { get; set; }
     public ModuleEntryAttribute Attribute { get; set; }
-    public ModuleEventBus EventBus { get; set; }
+    public CommandDispatcher<CommandContext> CommandDispatcher { get; set; }
 
-    public Module(IModule entryPoint, ModuleEntryAttribute attribute, ModuleEventBus eventBus)
+    public Module(BaseModule baseModule, ModuleEntryAttribute attribute)
     {
-        EntryPoint = entryPoint;
+        BaseModule = baseModule;
         Attribute = attribute;
-        EventBus = eventBus;
+
+        CommandDispatcher = new CommandDispatcher<CommandContext>();
     }
 }

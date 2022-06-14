@@ -8,20 +8,20 @@ public static class ModuleLoader
 {
     public static bool TryLoadModule(
         Assembly assembly,
-        [MaybeNullWhen(false)] out IModule entryPoint, 
+        [MaybeNullWhen(false)] out BaseModule baseModule, 
         [MaybeNullWhen(false)] out ModuleEntryAttribute attribute)
     {
         IEnumerable<Type> types = assembly.GetTypes()
-            .Where(x => !x.IsInterface && !x.IsAbstract && typeof(IModule).IsAssignableFrom(x));
+            .Where(x => !x.IsInterface && !x.IsAbstract && typeof(BaseModule).IsAssignableFrom(x));
 
-        entryPoint = null;
+        baseModule = null;
         attribute = null;
         
         foreach (Type type in types)
         {
             if (Attribute.GetCustomAttribute(type, typeof(ModuleEntryAttribute)) is ModuleEntryAttribute moduleEntryAttribute)
             {
-                entryPoint = (IModule) Activator.CreateInstance(type);
+                baseModule = (BaseModule) Activator.CreateInstance(type);
                 attribute = moduleEntryAttribute;
                 return true;
             }

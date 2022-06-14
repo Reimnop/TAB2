@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using System.Text;
 using log4net;
-using TAB2.Api.Events;
 using TAB2.Api.Module;
 
 namespace TAB2.Module;
@@ -44,7 +43,7 @@ public class ModuleManager
 
         foreach (Module module in modules)
         {
-            module.EntryPoint.Initialize(module.EventBus);
+            module.BaseModule.Initialize();
             loadedModules.Add(module.Attribute.Id, module);
         }
     }
@@ -61,13 +60,12 @@ public class ModuleManager
 
     private Module? LoadModule(Assembly assembly)
     {
-        if (!ModuleLoader.TryLoadModule(assembly, out IModule? entryPoint, out ModuleEntryAttribute? attribute))
+        if (!ModuleLoader.TryLoadModule(assembly, out BaseModule? entryPoint, out ModuleEntryAttribute? attribute))
         {
             return null;
         }
         
-        ModuleEventBus eventBus = new ModuleEventBus();
-        return new Module(entryPoint, attribute, eventBus);
+        return new Module(entryPoint, attribute);
     }
 
     public void RunOnAllModules(ModuleRunDelegate moduleRunDelegate)
