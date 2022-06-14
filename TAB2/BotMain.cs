@@ -27,7 +27,6 @@ public class BotMain : IDisposable
     public async Task Run(string token)
     {
         moduleManager.LoadModules("Modules");
-        moduleManager.InitializeModules();
 
         client.Log += ClientOnLog;
         
@@ -42,18 +41,22 @@ public class BotMain : IDisposable
 
     private Task ClientOnReady()
     {
-        return moduleManager.RunOnAllModules(module =>
+        moduleManager.RunOnAllModules(module =>
         {
             module.EventBus.RaiseReadyEvent();
         });
+        
+        return Task.CompletedTask;
     }
 
     private Task ClientOnMessageReceived(SocketMessage message)
     {
-        return moduleManager.RunOnAllModules(module =>
+        moduleManager.RunOnAllModules(module =>
         {
             module.EventBus.RaiseMessageReceivedEvent(message);
         });
+        
+        return Task.CompletedTask;
     }
 
     private Task ClientOnLog(LogMessage msg)

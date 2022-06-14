@@ -1,7 +1,8 @@
 ﻿using System.Reflection;
+using System.Text;
 using log4net;
 using TAB2.Api.Events;
-using TAB2.Utilities;
+using TAB2.Api.Module;
 
 namespace TAB2.Module;
 
@@ -11,62 +12,80 @@ public class ModuleManager
 {
     private readonly ILog log;
     private readonly Dictionary<string, Module> loadedModules;
-    private readonly DeferredRunner deferredRunner;
 
     public ModuleManager()
     {
         log = LogManager.GetLogger("ModuleManager");
         loadedModules = new Dictionary<string, Module>();
-        deferredRunner = new DeferredRunner();
     }
 
     public void LoadModules(string directory)
     {
+        List<Module> modules = new List<Module>();
+        
         FileInfo[] files = new DirectoryInfo(directory).GetFiles();
         IEnumerable<FileInfo> assemblyFiles = files
             .Where(x => x.Extension == ".dll");
         foreach (FileInfo assemblyFile in assemblyFiles)
         {
-            LoadModule(assemblyFile.FullName);
+            Assembly assembly = Assembly.LoadFile(assemblyFile.FullName);
+            Module? module = LoadModule(assembly);
+
+            if (module == null)
+            {
+                log.Warn($"Could not load module from assembly '{assembly}'!");
+                continue;
+            }
+            
+            modules.Add(module);
         }
-    }
-
-    public void LoadModule(string path)
-    {
-        Assembly assembly = Assembly.LoadFile(path);
-        ModuleLoader loader = new ModuleLoader(assembly);
-
-        // Attribute should never be null if module isn't null
-        ModuleInfo? info = loader.GetModuleInfo();
-        if (info == null)
-        {
-            log.Warn($"Assembly '{assembly}' does not define a module entry!");
-            return;
-        }
-
-        ModuleEventBus eventBus = new ModuleEventBus();
-        Module module = new Module(info, eventBus);
-        loadedModules.Add(info.Attribute.Id, module);
         
-        deferredRunner.QueueFunction(() =>
+        LogDiscoveredModules(modules);
+
+        foreach (Module module in modules)
         {
-            log.Info($"Loading module '{info.Attribute.Name}' [{info.Attribute.Version}] (id: '{info.Attribute.Id}')");
-            info.EntryPoint.Initialize(eventBus);
-        });
+            module.EntryPoint.Initialize(module.EventBus);
+            loadedModules.Add(module.Attribute.Id, module);
+        }
     }
 
-    public void InitializeModules()
+    private void LogDiscoveredModules(ICollection<Module> modules)
     {
-        deferredRunner.RunAll();
+        StringBuilder text = new StringBuilder($"Discovered {modules.Count} module(s)\n");
+        foreach (Module module in modules)
+        {
+            text.Append($"    - {module.Attribute.Name} (id: '{module.Attribute.Id}', version: {module.Attribute.Version})\n");
+        }
+        log.Info(text.ToString());
     }
 
-    public Task RunOnAllModules(ModuleRunDelegate moduleRunDelegate)
+    private Module? LoadModule(Assembly assembly)
+    {
+        if (!ModuleLoader.TryLoadModule(assembly, out IModule? entryPoint, out ModuleEntryAttribute? attribute))
+        {
+            return null;
+        }
+        
+        ModuleEventBus eventBus = new ModuleEventBus();
+        return new Module(entryPoint, attribute, eventBus);
+    }
+
+    public void RunOnAllModules(ModuleRunDelegate moduleRunDelegate)
     {
         foreach (Module module in loadedModules.Values)
         {
             moduleRunDelegate(module);
         }
-        
-        return Task.CompletedTask;
+    }
+
+    public bool TryRunOnModule(string id, ModuleRunDelegate moduleRunDelegate)
+    {
+        if (!loadedModules.TryGetValue(id, out Module? module))
+        {
+            return false;
+        }
+
+        moduleRunDelegate(module);
+        return true;
     }
 }

@@ -1,31 +1,32 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using TAB2.Api.Module;
 
 namespace TAB2.Module;
 
-public class ModuleLoader
+public static class ModuleLoader
 {
-    private readonly Assembly assembly;
-    
-    public ModuleLoader(Assembly assembly)
-    {
-        this.assembly = assembly;
-    }
-
-    public ModuleInfo? GetModuleInfo()
+    public static bool TryLoadModule(
+        Assembly assembly,
+        [MaybeNullWhen(false)] out IModule entryPoint, 
+        [MaybeNullWhen(false)] out ModuleEntryAttribute attribute)
     {
         IEnumerable<Type> types = assembly.GetTypes()
             .Where(x => !x.IsInterface && !x.IsAbstract && typeof(IModule).IsAssignableFrom(x));
+
+        entryPoint = null;
+        attribute = null;
         
         foreach (Type type in types)
         {
             if (Attribute.GetCustomAttribute(type, typeof(ModuleEntryAttribute)) is ModuleEntryAttribute moduleEntryAttribute)
             {
-                IModule module = (IModule) Activator.CreateInstance(type);
-                return new ModuleInfo(module, moduleEntryAttribute);
+                entryPoint = (IModule) Activator.CreateInstance(type);
+                attribute = moduleEntryAttribute;
+                return true;
             }
         }
 
-        return null;
+        return false;
     }
 }

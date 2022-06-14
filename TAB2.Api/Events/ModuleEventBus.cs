@@ -9,11 +9,11 @@ public class ModuleEventBus
 
     public void RaiseReadyEvent()
     {
-        OnReady.Invoke();
+        OnReady?.Invoke();
     }
 
     public void RaiseMessageReceivedEvent(SocketMessage message)
     {
-        OnMessageReceived.Invoke(message);
+        OnMessageReceived?.Invoke(message);
     }
 }

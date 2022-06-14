@@ -7,21 +7,10 @@ namespace TAB2.TestModule;
 [ModuleEntry("TestModule", "testmodule", "1.0.0")]
 public class TestModule : IModule
 {
-    private ILog log;
+    private readonly ILog log = LogManager.GetLogger("testmodule");
     
     public void Initialize(ModuleEventBus eventBus)
     {
-        log = LogManager.GetLogger("testmodule");
         log.Info("Hello World from Test Module!");
-
-        eventBus.OnReady += () =>
-        {
-            log.Info("Bot is ready!");
-        };
-        
-        eventBus.OnMessageReceived += message =>
-        {
-            log.Info($"{message.Author} sent '{message.Content}'");
-        };
     }
 }
