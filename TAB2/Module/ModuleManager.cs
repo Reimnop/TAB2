@@ -6,6 +6,7 @@ using TAB2.Api.Module;
 namespace TAB2.Module;
 
 public delegate void ModuleRunDelegate(Module module);
+public delegate Task ModuleTaskDelegate(Module module);
 
 public class ModuleManager
 {
@@ -72,12 +73,20 @@ public class ModuleManager
         return new Module(entryPoint, attribute);
     }
 
-    public async Task RunOnAllModulesAsync(ModuleRunDelegate moduleRunDelegate)
+    public async void RunOnAllModules(ModuleRunDelegate moduleRunDelegate)
+    {
+        foreach (Module module in loadedModules)
+        {
+            moduleRunDelegate(module);
+        }
+    }
+    
+    public async Task RunOnAllModulesAsync(ModuleTaskDelegate moduleTaskDelegate)
     {
         List<Task> tasks = new List<Task>(loadedModules.Count);
         foreach (Module module in loadedModules)
         {
-            tasks.Add(Task.Run(() => moduleRunDelegate(module)));
+            tasks.Add(Task.Run(() => moduleTaskDelegate(module)));
         }
         
         await Task.WhenAll(tasks);
@@ -92,5 +101,16 @@ public class ModuleManager
 
         moduleRunDelegate(loadedModules[index]);
         return true;
+    }
+    
+    public Task<bool> TryRunOnModuleAsync(string id, ModuleTaskDelegate moduleTaskDelegate)
+    {
+        if (!moduleIndices.TryGetValue(id, out int index))
+        {
+            return Task.FromResult(false);
+        }
+
+        moduleTaskDelegate(loadedModules[index]);
+        return Task.FromResult(true);
     }
 }
