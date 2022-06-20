@@ -17,24 +17,30 @@ public class TestModule : BaseModule
         log.Info("Hello World from Test Module!");
     }
 
-    public override void OnReady()
+    public override Task OnReady()
     {
         log.Info("Test Module is ready!");
+        return Task.CompletedTask;
     }
 
-    public override void OnCommandRegister(CommandDispatcher<CommandSource> dispatcher)
+    public override Task OnCommandRegister(CommandDispatcher<CommandSource> dispatcher)
     {
-        dispatcher.Register(a => a.Literal("helloworld")
-            .Executes(context =>
-            {
-                context.Source.Channel.SendMessageAsync("Hello world!").Wait();
-                return 1;
-            })
+        dispatcher.Register(a => a.Literal("say")
+            .Then(b => b.Argument("message", Arguments.String())
+                .Executes(context =>
+                {
+                    CommandSource source = context.Source;
+                    source.Channel.SendMessageAsync($"{source.User.Mention} said '{context.GetArgument<string>("message")}'");
+                    return 1;
+                })
+            )
         );
+        return Task.CompletedTask;
     }
 
-    public override void OnMessageReceived(SocketMessage message)
+    public override Task OnMessageReceived(SocketMessage message)
     {
         log.Info($"{message.Author.Username} sent '{message.Content}'");
+        return Task.CompletedTask;
     }
 }
