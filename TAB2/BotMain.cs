@@ -37,8 +37,9 @@ public class BotMain : IDisposable
 
         // Module events
         // Everything is a one-liner
-        client.Ready += () => moduleManager.RunOnAllModulesAsync(module => Task.Run(() => module.BaseModule.OnReady()));
-        client.MessageReceived += message => moduleManager.RunOnAllModulesAsync(module => Task.Run(() => module.BaseModule.OnMessageReceived(message)));
+        client.Ready += () => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnReady());
+        client.MessageReceived += message => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnMessageReceived(message));
+        
         
         client.Log += ClientOnLog;
         client.MessageReceived += ClientOnMessageReceived;
@@ -100,18 +101,14 @@ public class BotMain : IDisposable
         {
             CommandSource source = new CommandSource((SocketTextChannel) message.Channel);
             
-            if (!await moduleManager.TryRunOnModuleAsync(
-                    id,
-                    module => RunCommand(module.CommandDispatcher, subCommand, (SocketTextChannel) message.Channel, source)
-                    )
-                )
+            if (!moduleManager.TryRunOnModule(id, module => RunCommand(module.CommandDispatcher, source, subCommand).Wait()))
             {
                 await message.Channel.SendMessageAsync($"Module with id '{id}' does not exist!");
             }
         });
     }
 
-    private async Task RunCommand(CommandDispatcher<CommandSource> dispatcher, string command, SocketTextChannel channel, CommandSource source)
+    private async Task RunCommand(CommandDispatcher<CommandSource> dispatcher, CommandSource source, string command)
     {
         try
         {
@@ -119,7 +116,7 @@ public class BotMain : IDisposable
         }
         catch (CommandSyntaxException e)
         {
-            await channel.SendMessageAsync(e.Message);
+            await source.Channel.SendMessageAsync(e.Message);
         }
     }
 

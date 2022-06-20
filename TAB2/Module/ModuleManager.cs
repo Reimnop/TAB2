@@ -5,17 +5,19 @@ using TAB2.Api.Module;
 
 namespace TAB2.Module;
 
-public delegate Task ModuleRunTaskDelegate(Module module);
+public delegate void ModuleRunDelegate(Module module);
 
 public class ModuleManager
 {
     private readonly ILog log;
-    private readonly Dictionary<string, Module> loadedModules;
+    private readonly Dictionary<string, int> moduleIndices;
+    private readonly List<Module> loadedModules;
 
     public ModuleManager()
     {
         log = LogManager.GetLogger("ModuleManager");
-        loadedModules = new Dictionary<string, Module>();
+        moduleIndices = new Dictionary<string, int>();
+        loadedModules = new List<Module>();
     }
 
     public void LoadModules(string directory)
@@ -44,7 +46,9 @@ public class ModuleManager
         foreach (Module module in modules)
         {
             module.BaseModule.Initialize();
-            loadedModules.Add(module.Attribute.Id, module);
+            
+            moduleIndices.Add(module.Attribute.Id, loadedModules.Count);
+            loadedModules.Add(module);
         }
     }
 
@@ -68,22 +72,25 @@ public class ModuleManager
         return new Module(entryPoint, attribute);
     }
 
-    public async Task RunOnAllModulesAsync(ModuleRunTaskDelegate moduleRunTask)
+    public async Task RunOnAllModulesAsync(ModuleRunDelegate moduleRunDelegate)
     {
-        foreach (Module module in loadedModules.Values)
+        List<Task> tasks = new List<Task>(loadedModules.Count);
+        foreach (Module module in loadedModules)
         {
-            await moduleRunTask(module);
+            tasks.Add(Task.Run(() => moduleRunDelegate(module)));
         }
+        
+        await Task.WhenAll(tasks);
     }
 
-    public async Task<bool> TryRunOnModuleAsync(string id, ModuleRunTaskDelegate moduleRunTask)
+    public bool TryRunOnModule(string id, ModuleRunDelegate moduleRunDelegate)
     {
-        if (!loadedModules.TryGetValue(id, out Module? module))
+        if (!moduleIndices.TryGetValue(id, out int index))
         {
             return false;
         }
 
-        await moduleRunTask(module);
+        moduleRunDelegate(loadedModules[index]);
         return true;
     }
 }
