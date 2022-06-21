@@ -1,5 +1,6 @@
 ﻿using Brigadier.NET;
 using Brigadier.NET.Builder;
+using Brigadier.NET.Context;
 using Discord.WebSocket;
 using log4net;
 using TAB2.Api.Command;
@@ -27,15 +28,16 @@ public class TestModule : BaseModule
     {
         dispatcher.Register(a => a.Literal("say")
             .Then(b => b.Argument("message", Arguments.String())
-                .Executes(context =>
-                {
-                    CommandSource source = context.Source;
-                    source.Message.Channel.SendMessageAsync($"{source.Message.Author.Mention} said '{context.GetArgument<string>("message")}'");
-                    return 1;
-                })
+                .Executes(context => ExecuteCommand(context).GetAwaiter().GetResult())
             )
         );
         return Task.CompletedTask;
+    }
+
+    private async Task<int> ExecuteCommand(CommandContext<CommandSource> context)
+    {
+        await context.Source.Message.Channel.SendMessageAsync($"{context.Source.Message.Author.Mention} said '{context.GetArgument<string>("message")}'");
+        return 1;
     }
 
     public override Task OnMessageReceived(SocketMessage message)
