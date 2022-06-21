@@ -9,14 +9,14 @@ using TAB2.Module;
 
 namespace TAB2;
 
-public class BotMain : IDisposable
+public class TAB2 : IDisposable
 {
     private readonly ILog log;
     
     private readonly DiscordSocketClient client;
     private readonly ModuleManager moduleManager;
 
-    public BotMain()
+    public TAB2()
     {
         log = LogManager.GetLogger("Discord");
         
@@ -171,7 +171,7 @@ public class BotMain : IDisposable
         
         return Task.Run(async () =>
         {
-            CommandSource source = new CommandSource(message.Author, (SocketTextChannel) message.Channel);
+            CommandSource source = new CommandSource(message);
             
             if (!await moduleManager.TryRunOnModuleAsync(id, module => RunCommand(module.CommandDispatcher, source, subCommand)))
             {
@@ -188,7 +188,7 @@ public class BotMain : IDisposable
         }
         catch (CommandSyntaxException e)
         {
-            await source.Channel.SendMessageAsync(e.Message);
+            await source.Message.Channel.SendMessageAsync(e.Message);
         }
     }
 

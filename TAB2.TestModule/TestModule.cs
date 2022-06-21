@@ -30,7 +30,7 @@ public class TestModule : BaseModule
                 .Executes(context =>
                 {
                     CommandSource source = context.Source;
-                    source.Channel.SendMessageAsync($"{source.User.Mention} said '{context.GetArgument<string>("message")}'");
+                    source.Message.Channel.SendMessageAsync($"{source.Message.Author.Mention} said '{context.GetArgument<string>("message")}'");
                     return 1;
                 })
             )

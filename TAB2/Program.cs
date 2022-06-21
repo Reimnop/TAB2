@@ -1,7 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using log4net;
 using log4net.Config;
-using TAB2;
 
 const string LogConfigFile = "log4net_cfg.xml";
 
@@ -21,7 +20,7 @@ try
 {
     log.Info($"Starting bot with token {token}");
     
-    using var main = new BotMain();
+    using var main = new TAB2.TAB2();
     Task runTask = main.Run(token);
     TaskAwaiter awaiter = runTask.GetAwaiter();
     awaiter.GetResult();
