@@ -46,7 +46,7 @@ public static class ModuleLoader
         // Guaranteed to be non-null
         Type entryType = assembly
             .GetTypes()
-            .First(x => !x.IsInterface && !x.IsAbstract && typeof(BaseModule).IsAssignableFrom(x));
+            .First(x => !x.IsInterface && !x.IsAbstract && typeof(BaseModule).IsAssignableFrom(x) && x.GetCustomAttribute(typeof(ModuleEntryAttribute)) != null);
 
         baseModule = (BaseModule) Activator.CreateInstance(entryType);
         attribute = (ModuleEntryAttribute) Attribute.GetCustomAttribute(entryType, typeof(ModuleEntryAttribute));
