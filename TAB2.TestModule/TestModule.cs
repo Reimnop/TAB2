@@ -1,8 +1,10 @@
 ﻿using Brigadier.NET;
 using Brigadier.NET.Builder;
 using Brigadier.NET.Context;
+using Discord;
 using Discord.WebSocket;
 using log4net;
+using TAB2.Api;
 using TAB2.Api.Command;
 using TAB2.Api.Module;
 
@@ -12,16 +14,21 @@ namespace TAB2.TestModule;
 public class TestModule : BaseModule
 {
     private readonly ILog log = LogManager.GetLogger("testmodule");
+
+    private IBotInstance instance;
     
-    public override void Initialize()
+    public override void Initialize(IBotInstance instance)
     {
+        this.instance = instance;
+        
         log.Info("Hello World from Test Module!");
     }
 
-    public override Task OnReady()
+    public override async Task OnReady()
     {
         log.Info("Test Module is ready!");
-        return Task.CompletedTask;
+
+        await instance.Client.SetStatusAsync(UserStatus.DoNotDisturb);
     }
 
     public override Task OnCommandRegister(CommandDispatcher<CommandSource> dispatcher)

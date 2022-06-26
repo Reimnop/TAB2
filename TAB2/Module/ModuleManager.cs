@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Text;
 using log4net;
+using TAB2.Api;
 using TAB2.Api.Module;
 
 namespace TAB2.Module;
@@ -21,7 +22,7 @@ public class ModuleManager
         loadedModules = new List<Module>();
     }
 
-    public void LoadModules(string directory)
+    public void LoadModules(string directory, IBotInstance instance)
     {
         List<Module> modules = new List<Module>();
         
@@ -45,7 +46,7 @@ public class ModuleManager
 
         foreach (Module module in modules)
         {
-            module.BaseModule.Initialize();
+            module.BaseModule.Initialize(instance);
             
             moduleIndices.Add(module.Attribute.Id, loadedModules.Count);
             loadedModules.Add(module);

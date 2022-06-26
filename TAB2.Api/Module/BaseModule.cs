@@ -10,10 +10,11 @@ namespace TAB2.Api.Module;
 
 public abstract class BaseModule
 {
-    public abstract void Initialize();
+    public abstract void Initialize(IBotInstance instance);
 
     public virtual Task OnCommandRegister(CommandDispatcher<CommandSource> dispatcher) => Task.CompletedTask;
 
+    #region DefaultEvents
     public virtual Task OnReady() => Task.CompletedTask;
 
     public virtual Task OnChannelCreated(SocketChannel channel) => Task.CompletedTask;
@@ -163,4 +164,5 @@ public abstract class BaseModule
     public virtual Task OnLoggedIn() => Task.CompletedTask;
 
     public virtual Task OnLoggedOut() => Task.CompletedTask;
+    #endregion
 }

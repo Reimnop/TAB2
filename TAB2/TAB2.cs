@@ -4,13 +4,17 @@ using Brigadier.NET.Exceptions;
 using Discord;
 using Discord.WebSocket;
 using log4net;
+using TAB2.Api;
 using TAB2.Api.Command;
 using TAB2.Module;
 
 namespace TAB2;
 
-public class TAB2 : IDisposable
+public class TAB2 : IDisposable, IBotInstance
 {
+    public DiscordSocketClient Client => client;
+    public string ConfigPath => "Config";
+    
     private readonly ILog log;
     
     private readonly DiscordSocketClient client;
@@ -30,11 +34,12 @@ public class TAB2 : IDisposable
 
     public async Task Run(string token)
     {
-        moduleManager.LoadModules("Modules");
+        moduleManager.LoadModules("Modules", this);
         
         // Module initialization steps
         await moduleManager.RunOnAllModulesAsync(module => Task.Run(() => module.BaseModule.OnCommandRegister(module.CommandDispatcher)));
 
+        #region ModuleEvents
         // Module events
         // Everything is a one-liner
         client.Ready += () => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnReady());
@@ -112,6 +117,7 @@ public class TAB2 : IDisposable
         client.Log += log => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnLog(log));
         client.LoggedIn += () => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnLoggedIn());
         client.LoggedOut += () => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnLoggedOut());
+        #endregion
         
         client.Log += ClientOnLog;
         client.MessageReceived += ClientOnMessageReceived;
