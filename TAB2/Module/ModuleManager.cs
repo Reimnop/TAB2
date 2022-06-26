@@ -30,12 +30,11 @@ public class ModuleManager
             .Where(x => x.Extension == ".dll");
         foreach (FileInfo assemblyFile in assemblyFiles)
         {
-            Assembly assembly = Assembly.LoadFile(assemblyFile.FullName);
-            Module? module = LoadModule(assembly);
+            Module? module = LoadModule(assemblyFile.FullName);
 
             if (module == null)
             {
-                log.Warn($"Could not load module from assembly '{assembly}'!");
+                log.Warn($"Could not load module from file '{assemblyFile.FullName}'! (Possible causes: Missing entrypoint or more than one entrypoint)");
                 continue;
             }
             
@@ -63,9 +62,9 @@ public class ModuleManager
         log.Info(text.ToString());
     }
 
-    private Module? LoadModule(Assembly assembly)
+    private Module? LoadModule(string path)
     {
-        if (!ModuleLoader.TryLoadModule(assembly, out BaseModule? entryPoint, out ModuleEntryAttribute? attribute))
+        if (!ModuleLoader.TryLoadModule(path, out BaseModule? entryPoint, out ModuleEntryAttribute? attribute))
         {
             return null;
         }
