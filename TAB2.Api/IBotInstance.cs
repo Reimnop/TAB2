@@ -5,5 +5,5 @@ namespace TAB2.Api;
 public interface IBotInstance
 {
     DiscordSocketClient Client { get; }
-    string ConfigPath { get; }
+    IDataManager DataManager { get; }
 }

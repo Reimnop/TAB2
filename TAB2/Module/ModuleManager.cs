@@ -26,16 +26,24 @@ public class ModuleManager
     {
         List<Module> modules = new List<Module>();
         
-        FileInfo[] files = new DirectoryInfo(directory).GetFiles();
-        IEnumerable<FileInfo> assemblyFiles = files
-            .Where(x => x.Extension == ".dll");
+        DirectoryInfo directoryInfo = new DirectoryInfo(directory);
+
+        if (!directoryInfo.Exists)
+        {
+            return;
+        }
+        
+        IEnumerable<FileInfo> assemblyFiles = directoryInfo
+            .EnumerateFiles()
+            .Where(x => x.Extension.Equals(".dll", StringComparison.OrdinalIgnoreCase));
+        
         foreach (FileInfo assemblyFile in assemblyFiles)
         {
             Module? module = LoadModule(assemblyFile.FullName);
 
             if (module == null)
             {
-                log.Warn($"Could not load module from file '{assemblyFile.FullName}'! (Possible causes: Missing entrypoint or more than one entrypoint)");
+                log.Warn($"Could not load module from file '{assemblyFile.FullName}'! (Invalid entrypoint)");
                 continue;
             }
             
@@ -73,7 +81,7 @@ public class ModuleManager
         return new Module(entryPoint, attribute);
     }
 
-    public async void RunOnAllModules(ModuleRunDelegate moduleRunDelegate)
+    public void RunOnAllModules(ModuleRunDelegate moduleRunDelegate)
     {
         foreach (Module module in loadedModules)
         {

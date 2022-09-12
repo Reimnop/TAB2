@@ -13,8 +13,7 @@ namespace TAB2;
 public class TAB2 : IDisposable, IBotInstance
 {
     public DiscordSocketClient Client => client;
-    public string ConfigPath => "Config";
-    
+
     private readonly ILog log;
     
     private readonly DiscordSocketClient client;

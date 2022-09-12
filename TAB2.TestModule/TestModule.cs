@@ -10,9 +10,11 @@ using TAB2.Api.Module;
 
 namespace TAB2.TestModule;
 
-[ModuleEntry("Test Module", "testmodule", "1.0.0")]
+[ModuleEntry("Test Module", ModuleId, "1.0.0")]
 public class TestModule : BaseModule
 {
+    private const string ModuleId = "testmodule";
+    
     private readonly ILog log = LogManager.GetLogger("testmodule");
 
     private IBotInstance instance;
@@ -20,7 +22,7 @@ public class TestModule : BaseModule
     public override void Initialize(IBotInstance instance)
     {
         this.instance = instance;
-        
+
         log.Info("Hello World from Test Module!");
     }
 

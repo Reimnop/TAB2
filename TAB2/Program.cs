@@ -18,7 +18,7 @@ if (token == null)
 
 try
 {
-    log.Info($"Starting bot with token {token}");
+    log.Info("Starting TAB2 Loader");
     
     using var main = new TAB2.TAB2();
     Task runTask = main.Run(token);
