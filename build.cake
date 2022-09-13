@@ -1,4 +1,4 @@
-var target = Argument("target", "TAB2");
+var target = Argument("target", "BuildAndCopy");
 var configuration = Argument("configuration", "Debug");
 
 //////////////////////////////////////////////////////////////////////
