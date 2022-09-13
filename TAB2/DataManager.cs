@@ -30,7 +30,8 @@ public class DataManager : IDataManager
     public void SaveData(string id)
     {
         IPersistentData data = datas[id];
-        
+
+        Directory.CreateDirectory("Data");
         using FileStream stream = File.OpenWrite(DataPath(id));
         NbtDocument document = new NbtDocument();
         data.WriteData(document.DocumentRoot);
