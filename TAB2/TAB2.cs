@@ -1,6 +1,4 @@
 ﻿using System.Text;
-using Brigadier.NET;
-using Brigadier.NET.Exceptions;
 using Discord;
 using Discord.WebSocket;
 using log4net;
@@ -118,7 +116,6 @@ public class TAB2 : IDisposable, IBotInstance
         #endregion
         
         Client.Log += ClientOnLog;
-        Client.MessageReceived += ClientOnMessageReceived;
         Client.Ready += ClientOnReady;
 
         await Client.LoginAsync(TokenType.Bot, token);
@@ -176,49 +173,6 @@ public class TAB2 : IDisposable, IBotInstance
         }
         
         return Task.CompletedTask;
-    }
-    
-    private Task ClientOnMessageReceived(SocketMessage message)
-    {
-        if (message.Author.IsBot)
-        {
-            return Task.CompletedTask;
-        }
-
-        if (message.Channel is not SocketGuildChannel)
-        {
-            return Task.CompletedTask;
-        }
-
-        if (!message.Content.StartsWith('!'))
-        {
-            return Task.CompletedTask;
-        }
-
-        string command = message.Content.Substring(1);
-        SplitCommand(command, out string id, out string subCommand);
-        
-        return Task.Run(async () =>
-        {
-            CommandSource source = new CommandSource(message);
-            
-            if (!await moduleManager.TryRunOnModuleAsync(id, module => RunCommand(module.CommandDispatcher, source, subCommand)))
-            {
-                await message.Channel.SendMessageAsync($"Module with id '{id}' does not exist!");
-            }
-        });
-    }
-
-    private async Task RunCommand(CommandDispatcher<CommandSource> dispatcher, CommandSource source, string command)
-    {
-        try
-        {
-            dispatcher.Execute(command, source);
-        }
-        catch (CommandSyntaxException e)
-        {
-            await source.Message.Channel.SendMessageAsync(e.Message);
-        }
     }
 
     private void SplitCommand(string command, out string id, out string subCommand)

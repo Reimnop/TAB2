@@ -1,5 +1,4 @@
-﻿using Brigadier.NET;
-using Discord;
+﻿using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
 using TAB2.Api.Command;

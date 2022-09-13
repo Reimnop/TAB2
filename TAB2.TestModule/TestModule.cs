@@ -1,7 +1,4 @@
-﻿using Brigadier.NET;
-using Brigadier.NET.Builder;
-using Brigadier.NET.Context;
-using Discord;
+﻿using Discord;
 using Discord.WebSocket;
 using log4net;
 using TAB2.Api;
