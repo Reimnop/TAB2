@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using log4net;
 using log4net.Config;
+using TAB2;
 
 const string LogConfigFile = "log4net_cfg.xml";
 
@@ -20,7 +21,7 @@ try
 {
     log.Info("Starting TAB2 Loader");
     
-    using var main = new TAB2.TAB2();
+    using TAB2Loader main = new TAB2Loader();
     Task runTask = main.Run(token);
     TaskAwaiter awaiter = runTask.GetAwaiter();
     awaiter.GetResult();

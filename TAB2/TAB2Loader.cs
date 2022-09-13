@@ -5,19 +5,22 @@ using log4net;
 using TAB2.Api;
 using TAB2.Api.Command;
 using TAB2.Api.Module;
+using TAB2.Command;
 using TAB2.Module;
 
 namespace TAB2;
 
-public class TAB2 : IDisposable, IBotInstance
+public class TAB2Loader : IDisposable, IBotInstance
 {
     public DiscordSocketClient Client { get; }
-    public IDataManager DataManager { get; }
+    public IDataManager DataManager => dataManager;
 
     private readonly ILog log;
     private readonly ModuleManager moduleManager;
+    private readonly DataManager dataManager;
+    private readonly CommandManager commandManager;
 
-    public TAB2()
+    public TAB2Loader()
     {
         log = LogManager.GetLogger("Discord");
         
@@ -26,9 +29,10 @@ public class TAB2 : IDisposable, IBotInstance
         config.GatewayIntents = GatewayIntents.Guilds;
 
         Client = new DiscordSocketClient(config);
-        DataManager = new DataManager();
-
+        
         moduleManager = new ModuleManager();
+        dataManager = new DataManager();
+        commandManager = new CommandManager();
     }
 
     public async Task Run(string token)
@@ -117,11 +121,18 @@ public class TAB2 : IDisposable, IBotInstance
         
         Client.Log += ClientOnLog;
         Client.Ready += ClientOnReady;
+        Client.SlashCommandExecuted += ClientOnSlashCommandExecuted;
 
         await Client.LoginAsync(TokenType.Bot, token);
         await Client.StartAsync();
 
         await Task.Delay(Timeout.Infinite);
+    }
+
+    private async Task ClientOnSlashCommandExecuted(SocketSlashCommand slashCommand)
+    {
+        SlashCommandContext context = new SlashCommandContext(slashCommand);
+        await commandManager.RunCommand(slashCommand.CommandName, context);
     }
 
     private async Task ClientOnReady()
@@ -131,17 +142,18 @@ public class TAB2 : IDisposable, IBotInstance
 
     private async Task RegisterCommands(BaseModule module)
     {
-        IEnumerator<CommandBuilder> enumerator = module.OnCommandRegister();
+        IEnumerator<DiscordCommand> enumerator = module.OnCommandRegister();
 
         while (enumerator.MoveNext())
         {
-            CommandBuilder builder = enumerator.Current;
+            DiscordCommand discordCommand = enumerator.Current;
+            commandManager.RegisterCommand(discordCommand);
 
             foreach (SocketGuild guild in Client.Guilds)
             {
                 SlashCommandBuilder commandBuilder = new SlashCommandBuilder()
-                    .WithName(builder.Name)
-                    .WithDescription(builder.Description);
+                    .WithName(discordCommand.Name)
+                    .WithDescription(discordCommand.Description);
 
                 await guild.CreateApplicationCommandAsync(commandBuilder.Build());
             }

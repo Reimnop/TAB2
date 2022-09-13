@@ -33,14 +33,25 @@ public class TestModule : BaseModule
         await instance.Client.SetStatusAsync(UserStatus.DoNotDisturb);
     }
 
-    public override IEnumerator<CommandBuilder> OnCommandRegister()
+    public override IEnumerator<DiscordCommand> OnCommandRegister()
     {
-        yield return new CommandBuilder("ping")
-            .WithDescription("Ping");
+        yield return new DiscordCommand("ping")
+            .WithDescription("Ping")
+            .Executes(PingCommand);
+        
+        yield return new DiscordCommand("enchart")
+            .WithDescription("flushed")
+            .Executes(EnchartFlushedCommand);
     }
 
-    public override async Task OnSlashCommandExecuted(SocketSlashCommand slashCommand)
+    private async Task PingCommand(ICommandContext context)
     {
+        await context.RespondAsync($"Pong! :ping_pong:\nCurrent latency: {instance.Client.Latency}");
+    }
+
+    private async Task EnchartFlushedCommand(ICommandContext context)
+    {
+        await context.RespondAsync("enchy wenchy :squeee:");
     }
 
     public override Task OnMessageReceived(SocketMessage message)
