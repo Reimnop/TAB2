@@ -6,6 +6,7 @@ using Discord.WebSocket;
 using log4net;
 using TAB2.Api;
 using TAB2.Api.Command;
+using TAB2.Api.Module;
 using TAB2.Module;
 
 namespace TAB2;
@@ -24,6 +25,7 @@ public class TAB2 : IDisposable, IBotInstance
         
         DiscordSocketConfig config = new DiscordSocketConfig();
         config.DefaultRetryMode = RetryMode.AlwaysRetry;
+        config.GatewayIntents = GatewayIntents.Guilds;
 
         Client = new DiscordSocketClient(config);
         DataManager = new DataManager();
@@ -34,9 +36,6 @@ public class TAB2 : IDisposable, IBotInstance
     public async Task Run(string token)
     {
         moduleManager.LoadModules("Modules", this);
-        
-        // Module initialization steps
-        await moduleManager.RunOnAllModulesAsync(module => Task.Run(() => module.BaseModule.OnCommandRegister(module.CommandDispatcher)));
 
         #region ModuleEvents
         // Module events
@@ -120,11 +119,36 @@ public class TAB2 : IDisposable, IBotInstance
         
         Client.Log += ClientOnLog;
         Client.MessageReceived += ClientOnMessageReceived;
+        Client.Ready += ClientOnReady;
 
         await Client.LoginAsync(TokenType.Bot, token);
         await Client.StartAsync();
 
         await Task.Delay(Timeout.Infinite);
+    }
+
+    private async Task ClientOnReady()
+    {
+        await moduleManager.RunOnAllModulesAsync(module => RegisterCommands(module.BaseModule));
+    }
+
+    private async Task RegisterCommands(BaseModule module)
+    {
+        IEnumerator<CommandBuilder> enumerator = module.OnCommandRegister();
+
+        while (enumerator.MoveNext())
+        {
+            CommandBuilder builder = enumerator.Current;
+
+            foreach (SocketGuild guild in Client.Guilds)
+            {
+                SlashCommandBuilder commandBuilder = new SlashCommandBuilder()
+                    .WithName(builder.Name)
+                    .WithDescription(builder.Description);
+
+                await guild.CreateApplicationCommandAsync(commandBuilder.Build());
+            }
+        }
     }
 
     private Task ClientOnLog(LogMessage msg)

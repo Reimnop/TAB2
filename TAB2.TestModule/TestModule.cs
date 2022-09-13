@@ -25,7 +25,6 @@ public class TestModule : BaseModule
         this.instance = instance;
         
         instance.DataManager.RegisterData(ModuleId, testData);
-        instance.DataManager.SaveData(ModuleId);
 
         log.Info("Hello World from Test Module!");
     }
@@ -37,20 +36,14 @@ public class TestModule : BaseModule
         await instance.Client.SetStatusAsync(UserStatus.DoNotDisturb);
     }
 
-    public override Task OnCommandRegister(CommandDispatcher<CommandSource> dispatcher)
+    public override IEnumerator<CommandBuilder> OnCommandRegister()
     {
-        dispatcher.Register(a => a.Literal("say")
-            .Then(b => b.Argument("message", Arguments.String())
-                .Executes(context => ExecuteCommand(context).GetAwaiter().GetResult())
-            )
-        );
-        return Task.CompletedTask;
+        yield return new CommandBuilder("ping")
+            .WithDescription("Ping");
     }
 
-    private async Task<int> ExecuteCommand(CommandContext<CommandSource> context)
+    public override async Task OnSlashCommandExecuted(SocketSlashCommand slashCommand)
     {
-        await context.Source.Message.Channel.SendMessageAsync($"{context.Source.Message.Author.Mention} said '{context.GetArgument<string>("message")}'");
-        return 1;
     }
 
     public override Task OnMessageReceived(SocketMessage message)

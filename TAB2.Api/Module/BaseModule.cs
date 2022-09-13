@@ -12,7 +12,7 @@ public abstract class BaseModule
 {
     public abstract void Initialize(IBotInstance instance);
 
-    public virtual Task OnCommandRegister(CommandDispatcher<CommandSource> dispatcher) => Task.CompletedTask;
+    public abstract IEnumerator<CommandBuilder> OnCommandRegister();
 
     #region DefaultEvents
     public virtual Task OnReady() => Task.CompletedTask;
