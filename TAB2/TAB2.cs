@@ -12,11 +12,10 @@ namespace TAB2;
 
 public class TAB2 : IDisposable, IBotInstance
 {
-    public DiscordSocketClient Client => client;
+    public DiscordSocketClient Client { get; }
+    public IDataManager DataManager { get; }
 
     private readonly ILog log;
-    
-    private readonly DiscordSocketClient client;
     private readonly ModuleManager moduleManager;
 
     public TAB2()
@@ -26,7 +25,8 @@ public class TAB2 : IDisposable, IBotInstance
         DiscordSocketConfig config = new DiscordSocketConfig();
         config.DefaultRetryMode = RetryMode.AlwaysRetry;
 
-        client = new DiscordSocketClient(config);
+        Client = new DiscordSocketClient(config);
+        DataManager = new DataManager();
 
         moduleManager = new ModuleManager();
     }
@@ -41,88 +41,88 @@ public class TAB2 : IDisposable, IBotInstance
         #region ModuleEvents
         // Module events
         // Everything is a one-liner
-        client.Ready += () => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnReady());
-        client.ChannelCreated += channel => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnChannelCreated(channel));
-        client.ChannelDestroyed += channel => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnChannelDestroyed(channel));
-        client.ChannelUpdated += (oldChannel, newChannel) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnChannelUpdated(oldChannel, newChannel));
-        client.GuildAvailable += guild => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildAvailable(guild));
-        client.GuildUnavailable += guild => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildUnavailable(guild));
-        client.GuildUpdated += (oldGuild, newGuild) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildUpdated(oldGuild, newGuild));
-        client.GuildMembersDownloaded += guild => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildMembersDownloaded(guild));
-        client.JoinedGuild += guild => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnJoinedGuild(guild));
-        client.LeftGuild += guild => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnLeftGuild(guild));
-        client.MessageDeleted += (message, channel) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnMessageDeleted(message, channel));
-        client.MessagesBulkDeleted += (messages, channel) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnMessagesBulkDeleted(messages, channel));
-        client.MessageReceived += message => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnMessageReceived(message));
-        client.MessageUpdated += (oldMessage, newMessage, channel) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnMessageUpdated(oldMessage, newMessage, channel));
-        client.ReactionAdded += (message, channel, reaction) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnReactionAdded(message, channel, reaction));
-        client.ReactionRemoved += (message, channel, reaction) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnReactionRemoved(message, channel, reaction));
-        client.ReactionsCleared += (message, channel) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnReactionsCleared(message, channel));
-        client.ReactionsRemovedForEmote += (message, channel, emote) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnReactionsRemovedForEmote(message, channel, emote));
-        client.UserBanned += (user, guild) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnUserBanned(user, guild));
-        client.UserJoined += user => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnUserJoined(user));
-        client.UserLeft += (guild, user) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnUserLeft(guild, user));
-        client.UserUnbanned += (user, guild) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnUserUnbanned(user, guild));
-        client.UserUpdated += (oldUser, newUser) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnUserUpdated(oldUser, newUser));
-        client.GuildMemberUpdated += (oldMember, newMember) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildMemberUpdated(oldMember, newMember));
-        client.UserVoiceStateUpdated += (user, oldState, newState) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnUserVoiceStateUpdated(user, oldState, newState));
-        client.VoiceServerUpdated += server => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnVoiceServerUpdated(server));
-        client.RoleCreated += role => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnRoleCreated(role));
-        client.RoleDeleted += role => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnRoleDeleted(role));
-        client.RoleUpdated += (oldRole, newRole) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnRoleUpdated(oldRole, newRole));
-        client.GuildJoinRequestDeleted += (user, guild) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildJoinRequestDeleted(user, guild));
-        client.GuildScheduledEventCreated += guildEvent => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildScheduledEventCreated(guildEvent));
-        client.GuildScheduledEventUpdated += (oldEvent, newEvent) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildScheduledEventUpdated(oldEvent, newEvent));
-        client.GuildScheduledEventCancelled += guildEvent => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildScheduledEventCancelled(guildEvent));
-        client.GuildScheduledEventCompleted += guildEvent => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildScheduledEventCompleted(guildEvent));
-        client.GuildScheduledEventStarted += guildEvent => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildScheduledEventStarted(guildEvent));
-        client.GuildScheduledEventUserAdd += (user, guildEvent) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildScheduledEventUserAdd(user, guildEvent));
-        client.GuildScheduledEventUserRemove += (user, guildEvent) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildScheduledEventUserRemove(user, guildEvent));
-        client.IntegrationCreated += integration => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnIntegrationCreated(integration));
-        client.IntegrationUpdated += integration => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnIntegrationUpdated(integration));
-        client.IntegrationDeleted += (guild, guildId, integrationId) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnIntegrationDeleted(guild, guildId, integrationId));
-        client.CurrentUserUpdated += (oldUser, newUser) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnCurrentUserUpdated(oldUser, newUser));
-        client.UserIsTyping += (user, channel) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnUserIsTyping(user, channel));
-        client.RecipientAdded += user => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnRecipientAdded(user));
-        client.RecipientRemoved += user => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnRecipientRemoved(user));
-        client.PresenceUpdated += (user, oldPresence, newPresence) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnPresenceUpdated(user, oldPresence, newPresence));
-        client.InviteCreated += invite => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnInviteCreated(invite));
-        client.InviteDeleted += (channel, invite) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnInviteDeleted(channel, invite));
-        client.InteractionCreated += interaction => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnInteractionCreated(interaction));
-        client.ButtonExecuted += messageComponent => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnButtonExecuted(messageComponent));
-        client.SelectMenuExecuted += messageComponent => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnSelectMenuExecuted(messageComponent));
-        client.SlashCommandExecuted += slashCommand => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnSlashCommandExecuted(slashCommand));
-        client.UserCommandExecuted += userCommand => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnUserCommandExecuted(userCommand));
-        client.MessageCommandExecuted += messageCommand => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnMessageCommandExecuted(messageCommand));
-        client.AutocompleteExecuted += autocomplete => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnAutocompleteExecuted(autocomplete));
-        client.ModalSubmitted += modal => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnModalSubmitted(modal));
-        client.ApplicationCommandCreated += applicationCommand => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnApplicationCommandCreated(applicationCommand));
-        client.ApplicationCommandUpdated += applicationCommand => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnApplicationCommandUpdated(applicationCommand));
-        client.ApplicationCommandDeleted += applicationCommand => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnApplicationCommandDeleted(applicationCommand));
-        client.ThreadCreated += thread => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnThreadCreated(thread));
-        client.ThreadUpdated += (oldThread, newThread) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnThreadUpdated(oldThread, newThread));
-        client.ThreadDeleted += thread => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnThreadDeleted(thread));
-        client.ThreadMemberJoined += threadUser => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnThreadMemberJoined(threadUser));
-        client.ThreadMemberLeft += threadUser => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnThreadMemberLeft(threadUser));
-        client.StageStarted += stage => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnStageStarted(stage));
-        client.StageEnded += stage => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnStageEnded(stage));
-        client.StageUpdated += (oldStage, newStage) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnStageUpdated(oldStage, newStage));
-        client.RequestToSpeak += (channel, user) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnRequestToSpeak(channel, user));
-        client.SpeakerAdded += (channel, user) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnSpeakerAdded(channel, user));
-        client.SpeakerRemoved += (channel, user) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnSpeakerRemoved(channel, user));
-        client.GuildStickerCreated += customSicker => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildStickerCreated(customSicker));
-        client.GuildStickerUpdated += (oldSticker, newSticker) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildStickerUpdated(oldSticker, newSticker));
-        client.GuildStickerDeleted += customSicker => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildStickerDeleted(customSicker));
-        client.Log += log => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnLog(log));
-        client.LoggedIn += () => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnLoggedIn());
-        client.LoggedOut += () => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnLoggedOut());
+        Client.Ready += () => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnReady());
+        Client.ChannelCreated += channel => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnChannelCreated(channel));
+        Client.ChannelDestroyed += channel => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnChannelDestroyed(channel));
+        Client.ChannelUpdated += (oldChannel, newChannel) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnChannelUpdated(oldChannel, newChannel));
+        Client.GuildAvailable += guild => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildAvailable(guild));
+        Client.GuildUnavailable += guild => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildUnavailable(guild));
+        Client.GuildUpdated += (oldGuild, newGuild) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildUpdated(oldGuild, newGuild));
+        Client.GuildMembersDownloaded += guild => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildMembersDownloaded(guild));
+        Client.JoinedGuild += guild => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnJoinedGuild(guild));
+        Client.LeftGuild += guild => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnLeftGuild(guild));
+        Client.MessageDeleted += (message, channel) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnMessageDeleted(message, channel));
+        Client.MessagesBulkDeleted += (messages, channel) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnMessagesBulkDeleted(messages, channel));
+        Client.MessageReceived += message => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnMessageReceived(message));
+        Client.MessageUpdated += (oldMessage, newMessage, channel) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnMessageUpdated(oldMessage, newMessage, channel));
+        Client.ReactionAdded += (message, channel, reaction) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnReactionAdded(message, channel, reaction));
+        Client.ReactionRemoved += (message, channel, reaction) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnReactionRemoved(message, channel, reaction));
+        Client.ReactionsCleared += (message, channel) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnReactionsCleared(message, channel));
+        Client.ReactionsRemovedForEmote += (message, channel, emote) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnReactionsRemovedForEmote(message, channel, emote));
+        Client.UserBanned += (user, guild) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnUserBanned(user, guild));
+        Client.UserJoined += user => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnUserJoined(user));
+        Client.UserLeft += (guild, user) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnUserLeft(guild, user));
+        Client.UserUnbanned += (user, guild) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnUserUnbanned(user, guild));
+        Client.UserUpdated += (oldUser, newUser) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnUserUpdated(oldUser, newUser));
+        Client.GuildMemberUpdated += (oldMember, newMember) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildMemberUpdated(oldMember, newMember));
+        Client.UserVoiceStateUpdated += (user, oldState, newState) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnUserVoiceStateUpdated(user, oldState, newState));
+        Client.VoiceServerUpdated += server => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnVoiceServerUpdated(server));
+        Client.RoleCreated += role => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnRoleCreated(role));
+        Client.RoleDeleted += role => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnRoleDeleted(role));
+        Client.RoleUpdated += (oldRole, newRole) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnRoleUpdated(oldRole, newRole));
+        Client.GuildJoinRequestDeleted += (user, guild) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildJoinRequestDeleted(user, guild));
+        Client.GuildScheduledEventCreated += guildEvent => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildScheduledEventCreated(guildEvent));
+        Client.GuildScheduledEventUpdated += (oldEvent, newEvent) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildScheduledEventUpdated(oldEvent, newEvent));
+        Client.GuildScheduledEventCancelled += guildEvent => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildScheduledEventCancelled(guildEvent));
+        Client.GuildScheduledEventCompleted += guildEvent => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildScheduledEventCompleted(guildEvent));
+        Client.GuildScheduledEventStarted += guildEvent => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildScheduledEventStarted(guildEvent));
+        Client.GuildScheduledEventUserAdd += (user, guildEvent) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildScheduledEventUserAdd(user, guildEvent));
+        Client.GuildScheduledEventUserRemove += (user, guildEvent) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildScheduledEventUserRemove(user, guildEvent));
+        Client.IntegrationCreated += integration => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnIntegrationCreated(integration));
+        Client.IntegrationUpdated += integration => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnIntegrationUpdated(integration));
+        Client.IntegrationDeleted += (guild, guildId, integrationId) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnIntegrationDeleted(guild, guildId, integrationId));
+        Client.CurrentUserUpdated += (oldUser, newUser) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnCurrentUserUpdated(oldUser, newUser));
+        Client.UserIsTyping += (user, channel) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnUserIsTyping(user, channel));
+        Client.RecipientAdded += user => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnRecipientAdded(user));
+        Client.RecipientRemoved += user => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnRecipientRemoved(user));
+        Client.PresenceUpdated += (user, oldPresence, newPresence) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnPresenceUpdated(user, oldPresence, newPresence));
+        Client.InviteCreated += invite => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnInviteCreated(invite));
+        Client.InviteDeleted += (channel, invite) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnInviteDeleted(channel, invite));
+        Client.InteractionCreated += interaction => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnInteractionCreated(interaction));
+        Client.ButtonExecuted += messageComponent => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnButtonExecuted(messageComponent));
+        Client.SelectMenuExecuted += messageComponent => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnSelectMenuExecuted(messageComponent));
+        Client.SlashCommandExecuted += slashCommand => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnSlashCommandExecuted(slashCommand));
+        Client.UserCommandExecuted += userCommand => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnUserCommandExecuted(userCommand));
+        Client.MessageCommandExecuted += messageCommand => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnMessageCommandExecuted(messageCommand));
+        Client.AutocompleteExecuted += autocomplete => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnAutocompleteExecuted(autocomplete));
+        Client.ModalSubmitted += modal => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnModalSubmitted(modal));
+        Client.ApplicationCommandCreated += applicationCommand => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnApplicationCommandCreated(applicationCommand));
+        Client.ApplicationCommandUpdated += applicationCommand => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnApplicationCommandUpdated(applicationCommand));
+        Client.ApplicationCommandDeleted += applicationCommand => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnApplicationCommandDeleted(applicationCommand));
+        Client.ThreadCreated += thread => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnThreadCreated(thread));
+        Client.ThreadUpdated += (oldThread, newThread) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnThreadUpdated(oldThread, newThread));
+        Client.ThreadDeleted += thread => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnThreadDeleted(thread));
+        Client.ThreadMemberJoined += threadUser => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnThreadMemberJoined(threadUser));
+        Client.ThreadMemberLeft += threadUser => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnThreadMemberLeft(threadUser));
+        Client.StageStarted += stage => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnStageStarted(stage));
+        Client.StageEnded += stage => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnStageEnded(stage));
+        Client.StageUpdated += (oldStage, newStage) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnStageUpdated(oldStage, newStage));
+        Client.RequestToSpeak += (channel, user) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnRequestToSpeak(channel, user));
+        Client.SpeakerAdded += (channel, user) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnSpeakerAdded(channel, user));
+        Client.SpeakerRemoved += (channel, user) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnSpeakerRemoved(channel, user));
+        Client.GuildStickerCreated += customSicker => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildStickerCreated(customSicker));
+        Client.GuildStickerUpdated += (oldSticker, newSticker) => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildStickerUpdated(oldSticker, newSticker));
+        Client.GuildStickerDeleted += customSicker => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnGuildStickerDeleted(customSicker));
+        Client.Log += log => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnLog(log));
+        Client.LoggedIn += () => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnLoggedIn());
+        Client.LoggedOut += () => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnLoggedOut());
         #endregion
         
-        client.Log += ClientOnLog;
-        client.MessageReceived += ClientOnMessageReceived;
+        Client.Log += ClientOnLog;
+        Client.MessageReceived += ClientOnMessageReceived;
 
-        await client.LoginAsync(TokenType.Bot, token);
-        await client.StartAsync();
+        await Client.LoginAsync(TokenType.Bot, token);
+        await Client.StartAsync();
 
         await Task.Delay(Timeout.Infinite);
     }
@@ -235,6 +235,6 @@ public class TAB2 : IDisposable, IBotInstance
 
     public void Dispose()
     {
-        client.Dispose();
+        Client.Dispose();
     }
 }
