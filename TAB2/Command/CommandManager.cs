@@ -4,16 +4,16 @@ namespace TAB2.Command;
 
 public class CommandManager
 {
-    private readonly Dictionary<string, DiscordCommand> commands = new Dictionary<string, DiscordCommand>();
+    private readonly Dictionary<string, DiscordCommandInfo> commands = new Dictionary<string, DiscordCommandInfo>();
 
-    public void RegisterCommand(DiscordCommand command)
+    public void RegisterCommand(DiscordCommandInfo commandInfo)
     {
-        commands.Add(command.Name, command);
+        commands.Add(commandInfo.Name, commandInfo);
     }
 
     public Task RunCommand(string command, ICommandContext context)
     {
-        if (commands.TryGetValue(command, out DiscordCommand? discordCommand))
+        if (commands.TryGetValue(command, out DiscordCommandInfo? discordCommand))
         {
             if (discordCommand.ExecutesTaskDelegate != null)
             {

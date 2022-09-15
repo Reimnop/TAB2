@@ -142,18 +142,27 @@ public class TAB2Loader : IDisposable, IBotInstance
 
     private async Task RegisterCommands(BaseModule module)
     {
-        IEnumerator<DiscordCommand> enumerator = module.OnCommandRegister();
+        IEnumerator<DiscordCommandInfo> enumerator = module.OnCommandRegister();
 
         while (enumerator.MoveNext())
         {
-            DiscordCommand discordCommand = enumerator.Current;
-            commandManager.RegisterCommand(discordCommand);
+            DiscordCommandInfo discordCommandInfo = enumerator.Current;
+            commandManager.RegisterCommand(discordCommandInfo);
 
             foreach (SocketGuild guild in Client.Guilds)
             {
                 SlashCommandBuilder commandBuilder = new SlashCommandBuilder()
-                    .WithName(discordCommand.Name)
-                    .WithDescription(discordCommand.Description);
+                    .WithName(discordCommandInfo.Name)
+                    .WithDescription(discordCommandInfo.Description);
+
+                foreach (ArgumentInfo argumentInfo in discordCommandInfo.Arguments)
+                {
+                    commandBuilder.AddOption(
+                        argumentInfo.Name, 
+                        ApplicationCommandOptionType.String,
+                        argumentInfo.Description, 
+                        argumentInfo.IsRequired);
+                }
 
                 await guild.CreateApplicationCommandAsync(commandBuilder.Build());
             }

@@ -12,7 +12,7 @@ public class TestModule : BaseModule
 {
     private const string ModuleId = "testmodule";
     
-    private readonly ILog log = LogManager.GetLogger("testmodule");
+    private readonly ILog log = LogManager.GetLogger(ModuleId);
     private TestData testData = new TestData();
 
     private IBotInstance instance;
@@ -33,20 +33,27 @@ public class TestModule : BaseModule
         await instance.Client.SetStatusAsync(UserStatus.DoNotDisturb);
     }
 
-    public override IEnumerator<DiscordCommand> OnCommandRegister()
+    public override IEnumerator<DiscordCommandInfo> OnCommandRegister()
     {
-        yield return new DiscordCommand("ping")
+        yield return new DiscordCommandInfo()
+            .WithName("ping")
             .WithDescription("Ping")
             .Executes(PingCommand);
         
-        yield return new DiscordCommand("enchart")
+        yield return new DiscordCommandInfo()
+            .WithName("enchart")
             .WithDescription("flushed")
             .Executes(EnchartFlushedCommand);
+
+        yield return new DiscordCommandInfo()
+            .WithName("say")
+            .WithDescription("what the fuck")
+            .AddStringArgument("message", "shit wtf");
     }
 
     private async Task PingCommand(ICommandContext context)
     {
-        await context.RespondAsync($"Pong! :ping_pong:\nCurrent latency: {instance.Client.Latency}");
+        await context.RespondAsync($"Pong! :ping_pong:\nLatency: {instance.Client.Latency}ms");
     }
 
     private async Task EnchartFlushedCommand(ICommandContext context)

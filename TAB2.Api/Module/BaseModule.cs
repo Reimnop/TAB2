@@ -11,7 +11,7 @@ public abstract class BaseModule
 {
     public abstract void Initialize(IBotInstance instance);
 
-    public abstract IEnumerator<DiscordCommand> OnCommandRegister();
+    public abstract IEnumerator<DiscordCommandInfo> OnCommandRegister();
 
     #region DefaultEvents
     public virtual Task OnReady() => Task.CompletedTask;
