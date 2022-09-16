@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAB2.TestModule", "TAB2.Tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAB2.Api", "TAB2.Api\TAB2.Api.csproj", "{B7119C0F-87CF-49FF-A7AC-96A5FE6F118F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Build", "build\Build.csproj", "{0466C833-2145-45D3-B908-DAE40871120E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{B7119C0F-87CF-49FF-A7AC-96A5FE6F118F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B7119C0F-87CF-49FF-A7AC-96A5FE6F118F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B7119C0F-87CF-49FF-A7AC-96A5FE6F118F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0466C833-2145-45D3-B908-DAE40871120E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0466C833-2145-45D3-B908-DAE40871120E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0466C833-2145-45D3-B908-DAE40871120E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0466C833-2145-45D3-B908-DAE40871120E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
