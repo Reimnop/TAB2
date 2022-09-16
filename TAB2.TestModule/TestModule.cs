@@ -13,15 +13,12 @@ public class TestModule : BaseModule
     private const string ModuleId = "testmodule";
     
     private readonly ILog log = LogManager.GetLogger(ModuleId);
-    private TestData testData = new TestData();
 
     private IBotInstance instance;
     
     public override void Initialize(IBotInstance instance)
     {
         this.instance = instance;
-        
-        instance.DataManager.RegisterData(ModuleId, testData);
 
         log.Info("Hello World from Test Module!");
     }
