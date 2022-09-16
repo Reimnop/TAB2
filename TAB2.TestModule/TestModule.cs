@@ -45,7 +45,8 @@ public class TestModule : BaseModule
         yield return new DiscordCommandInfo()
             .WithName("say")
             .WithDescription("what the fuck")
-            .AddStringArgument("message", "shit wtf");
+            .AddStringArgument("message", "shit wtf")
+            .Executes(SayCommand);
     }
 
     private async Task PingCommand(ICommandContext context)
@@ -56,6 +57,14 @@ public class TestModule : BaseModule
     private async Task EnchartFlushedCommand(ICommandContext context)
     {
         await context.RespondAsync("enchy wenchy :squeee:");
+    }
+
+    private async Task SayCommand(ICommandContext context)
+    {
+        if (context.GetArgument("message", out string? message))
+        {
+            await context.RespondAsync($"User said {message}");
+        }
     }
 
     public override Task OnMessageReceived(SocketMessage message)

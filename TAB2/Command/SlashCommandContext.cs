@@ -14,14 +14,19 @@ public class SlashCommandContext : ICommandContext
         arguments = slashCommand.Data.Options.ToDictionary(x => x.Name, x => x.Value);
     }
 
-    public T? GetArgument<T>(string name)
+    public bool GetArgument<T>(string name, out T? value)
     {
-        if (arguments.TryGetValue(name, out object? value))
+        if (arguments.TryGetValue(name, out object? uncastedValue))
         {
-            
+            if (uncastedValue is T castedValue)
+            {
+                value = castedValue;
+                return true;
+            }
         }
 
-        return null;
+        value = default;
+        return false;
     }
 
     public async Task RespondAsync(string message)

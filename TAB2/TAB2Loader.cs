@@ -18,7 +18,7 @@ public class TAB2Loader : IDisposable, IBotInstance
     private readonly ILog log;
     private readonly ModuleManager moduleManager;
     private readonly DataManager dataManager;
-    private readonly CommandManager commandManager;
+    private readonly SlashCommandManager slashCommandManager;
 
     public TAB2Loader()
     {
@@ -32,7 +32,7 @@ public class TAB2Loader : IDisposable, IBotInstance
         
         moduleManager = new ModuleManager();
         dataManager = new DataManager();
-        commandManager = new CommandManager();
+        slashCommandManager = new SlashCommandManager(Client);
     }
 
     public async Task Run(string token)
@@ -132,7 +132,7 @@ public class TAB2Loader : IDisposable, IBotInstance
     private async Task ClientOnSlashCommandExecuted(SocketSlashCommand slashCommand)
     {
         SlashCommandContext context = new SlashCommandContext(slashCommand);
-        await commandManager.RunCommand(slashCommand.CommandName, context);
+        await slashCommandManager.RunCommand(slashCommand.CommandName, context);
     }
 
     private async Task ClientOnReady()
@@ -147,25 +147,7 @@ public class TAB2Loader : IDisposable, IBotInstance
         while (enumerator.MoveNext())
         {
             DiscordCommandInfo discordCommandInfo = enumerator.Current;
-            commandManager.RegisterCommand(discordCommandInfo);
-
-            foreach (SocketGuild guild in Client.Guilds)
-            {
-                SlashCommandBuilder commandBuilder = new SlashCommandBuilder()
-                    .WithName(discordCommandInfo.Name)
-                    .WithDescription(discordCommandInfo.Description);
-
-                foreach (ArgumentInfo argumentInfo in discordCommandInfo.Arguments)
-                {
-                    commandBuilder.AddOption(
-                        argumentInfo.Name, 
-                        ApplicationCommandOptionType.String,
-                        argumentInfo.Description, 
-                        argumentInfo.IsRequired);
-                }
-
-                await guild.CreateApplicationCommandAsync(commandBuilder.Build());
-            }
+            await slashCommandManager.RegisterCommand(discordCommandInfo);
         }
     }
 

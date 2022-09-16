@@ -27,9 +27,9 @@ public class DiscordCommandInfo
         return this;
     }
     
-    public DiscordCommandInfo AddFloatArgument(string name, string description, bool isRequired = false)
+    public DiscordCommandInfo AddDoubleArgument(string name, string description, bool isRequired = false)
     {
-        Arguments.Add(new FloatArgumentInfo(name, description, isRequired));
+        Arguments.Add(new DoubleArgumentInfo(name, description, isRequired));
         return this;
     }
     
