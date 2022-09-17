@@ -6,4 +6,7 @@ public interface IBotInstance
 {
     DiscordSocketClient Client { get; }
     IDataManager DataManager { get; }
+    ITaskScheduler TaskScheduler { get; }
+
+    void Shutdown();
 }

@@ -14,11 +14,15 @@ public class TAB2Loader : IDisposable, IBotInstance
 {
     public DiscordSocketClient Client { get; }
     public IDataManager DataManager => dataManager;
+    public ITaskScheduler TaskScheduler => taskScheduler;
 
     private readonly ILog log;
     private readonly ModuleManager moduleManager;
     private readonly DataManager dataManager;
+    private readonly TaskScheduler taskScheduler;
     private readonly SlashCommandManager slashCommandManager;
+
+    private bool running = false;
 
     public TAB2Loader()
     {
@@ -30,8 +34,9 @@ public class TAB2Loader : IDisposable, IBotInstance
 
         Client = new DiscordSocketClient(config);
         
-        moduleManager = new ModuleManager();
+        moduleManager = new ModuleManager(this);
         dataManager = new DataManager();
+        taskScheduler = new TaskScheduler();
         slashCommandManager = new SlashCommandManager(Client);
     }
 
@@ -119,6 +124,8 @@ public class TAB2Loader : IDisposable, IBotInstance
         Client.LoggedOut += () => moduleManager.RunOnAllModulesAsync(module => module.BaseModule.OnLoggedOut());
         #endregion
         
+        running = true;
+        
         Client.Log += ClientOnLog;
         Client.Ready += ClientOnReady;
         Client.SlashCommandExecuted += ClientOnSlashCommandExecuted;
@@ -126,7 +133,16 @@ public class TAB2Loader : IDisposable, IBotInstance
         await Client.LoginAsync(TokenType.Bot, token);
         await Client.StartAsync();
 
-        await Task.Delay(Timeout.Infinite);
+        while (running)
+        {
+            taskScheduler.Tick();
+            await Task.Delay(40);
+        }
+    }
+
+    public void Shutdown()
+    {
+        Dispose();
     }
 
     private async Task ClientOnSlashCommandExecuted(SocketSlashCommand slashCommand)

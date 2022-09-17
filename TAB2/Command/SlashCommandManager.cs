@@ -35,16 +35,19 @@ public class SlashCommandManager
         if (info is IntArgumentInfo)
         {
             builder.AddOption(info.Name, ApplicationCommandOptionType.Integer, info.Description, info.IsRequired);
+            return;
         }
         
         if (info is DoubleArgumentInfo)
         {
             builder.AddOption(info.Name, ApplicationCommandOptionType.Number, info.Description, info.IsRequired);
+            return;
         }
         
         if (info is StringArgumentInfo)
         {
             builder.AddOption(info.Name, ApplicationCommandOptionType.String, info.Description, info.IsRequired);
+            return;
         }
     }
 

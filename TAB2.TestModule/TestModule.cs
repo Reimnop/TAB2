@@ -61,9 +61,11 @@ public class TestModule : BaseModule
 
     private async Task SayCommand(ICommandContext context)
     {
+        await context.DeferAsync();
+        await Task.Delay(2000);
         if (context.GetArgument("message", out string? message))
         {
-            await context.RespondAsync($"User said {message}");
+            await context.RespondAsync($"{context.User.Mention} said '{message}'");
         }
     }
 

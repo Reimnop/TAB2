@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using System.Text;
+﻿using System.Text;
 using log4net;
 using TAB2.Api;
 using TAB2.Api.Module;
@@ -15,8 +14,12 @@ public class ModuleManager
     private readonly Dictionary<string, int> moduleIndices;
     private readonly List<Module> loadedModules;
 
-    public ModuleManager()
+    private readonly TAB2Loader loader;
+
+    public ModuleManager(TAB2Loader loader)
     {
+        this.loader = loader;
+        
         log = LogManager.GetLogger("ModuleManager");
         moduleIndices = new Dictionary<string, int>();
         loadedModules = new List<Module>();
@@ -89,15 +92,15 @@ public class ModuleManager
         }
     }
     
-    public async Task RunOnAllModulesAsync(ModuleTaskDelegate moduleTaskDelegate)
+    // Hack
+    public Task RunOnAllModulesAsync(ModuleTaskDelegate moduleTaskDelegate)
     {
-        List<Task> tasks = new List<Task>(loadedModules.Count);
         foreach (Module module in loadedModules)
         {
-            tasks.Add(Task.Run(() => moduleTaskDelegate(module)));
+            loader.TaskScheduler.Run(() => moduleTaskDelegate(module));
         }
         
-        await Task.WhenAll(tasks);
+        return Task.CompletedTask;
     }
 
     public bool TryRunOnModule(string id, ModuleRunDelegate moduleRunDelegate)
