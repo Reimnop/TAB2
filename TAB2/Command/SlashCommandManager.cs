@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Discord.Commands.Builders;
 using Discord.WebSocket;
 using TAB2.Api.Command;
 
@@ -9,25 +10,56 @@ public class SlashCommandManager
     private readonly Dictionary<string, DiscordCommandInfo> commands = new Dictionary<string, DiscordCommandInfo>();
     private readonly DiscordSocketClient client;
 
+    private List<SlashCommandBuilder>? commandBuilders = new List<SlashCommandBuilder>();
+    private ApplicationCommandProperties[]? commandProperties;
+
     public SlashCommandManager(DiscordSocketClient client)
     {
         this.client = client;
     }
 
-    public async Task RegisterCommand(DiscordCommandInfo commandInfo)
+    public void RegisterCommand(DiscordCommandInfo commandInfo)
     {
-        foreach (SocketGuild guild in client.Guilds)
+        if (commandBuilders == null)
         {
-            SlashCommandBuilder commandBuilder = new SlashCommandBuilder()
-                .WithName(commandInfo.Name)
-                .WithDescription(commandInfo.Description);
-            
-            commandInfo.Arguments.ForEach(x => SetupArgument(commandBuilder, x));
-            
-            await guild.CreateApplicationCommandAsync(commandBuilder.Build());
+            return;
         }
         
+        SlashCommandBuilder commandBuilder = new SlashCommandBuilder()
+            .WithName(commandInfo.Name)
+            .WithDescription(commandInfo.Description);
+            
+        commandInfo.Arguments.ForEach(x => SetupArgument(commandBuilder, x));
+        
+        commandBuilders.Add(commandBuilder);
         commands.Add(commandInfo.Name, commandInfo);
+    }
+
+    public async Task Freeze()
+    {
+        if (commandBuilders == null)
+        {
+            return;
+        }
+        
+        commandProperties = commandBuilders
+            .Select(x => (ApplicationCommandProperties) x.Build())
+            .ToArray();
+        
+        foreach (SocketGuild guild in client.Guilds)
+        {
+            await RegisterGuild(guild);
+        }
+    }
+
+    public async Task RegisterGuild(SocketGuild guild)
+    {
+        if (commandProperties == null)
+        {
+            return;
+        }
+        
+        await guild.BulkOverwriteApplicationCommandAsync(commandProperties);
     }
 
     private void SetupArgument(SlashCommandBuilder builder, ArgumentInfo info)

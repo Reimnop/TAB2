@@ -48,7 +48,8 @@ public class TestModule : BaseModule
             .AddEnumArgument("abc", "abcdef", x => x
                 .AddOption(0, "Option 1")
                 .AddOption(1, "Option 2")
-                .AddOption(2, "Option 3"))
+                .AddOption(2, "Option 3")
+                .AddOption(3, "Option 4"))
             .AddStringArgument("message", "shit wtf")
             .Executes(SayCommand);
     }

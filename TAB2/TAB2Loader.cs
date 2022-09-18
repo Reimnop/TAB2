@@ -129,6 +129,7 @@ public class TAB2Loader : IDisposable, IBotInstance
         Client.Log += ClientOnLog;
         Client.Ready += ClientOnReady;
         Client.SlashCommandExecuted += ClientOnSlashCommandExecuted;
+        Client.JoinedGuild += ClientOnJoinedGuild;
 
         await Client.LoginAsync(TokenType.Bot, token);
         await Client.StartAsync();
@@ -145,6 +146,11 @@ public class TAB2Loader : IDisposable, IBotInstance
         Dispose();
     }
 
+    private async Task ClientOnJoinedGuild(SocketGuild guild)
+    {
+        await slashCommandManager.RegisterGuild(guild);
+    }
+
     private async Task ClientOnSlashCommandExecuted(SocketSlashCommand slashCommand)
     {
         SlashCommandContext context = new SlashCommandContext(slashCommand);
@@ -153,17 +159,18 @@ public class TAB2Loader : IDisposable, IBotInstance
 
     private async Task ClientOnReady()
     {
-        await moduleManager.RunOnAllModulesAsync(module => RegisterCommands(module.BaseModule));
+        moduleManager.RunOnAllModules(module => RegisterCommands(module.BaseModule));
+        await slashCommandManager.Freeze();
     }
 
-    private async Task RegisterCommands(BaseModule module)
+    private void RegisterCommands(BaseModule module)
     {
         IEnumerator<DiscordCommandInfo> enumerator = module.OnCommandRegister();
 
         while (enumerator.MoveNext())
         {
             DiscordCommandInfo discordCommandInfo = enumerator.Current;
-            await slashCommandManager.RegisterCommand(discordCommandInfo);
+            slashCommandManager.RegisterCommand(discordCommandInfo);
         }
     }
 
