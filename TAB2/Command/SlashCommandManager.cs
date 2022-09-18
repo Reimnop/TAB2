@@ -49,6 +49,19 @@ public class SlashCommandManager
             builder.AddOption(info.Name, ApplicationCommandOptionType.String, info.Description, info.IsRequired);
             return;
         }
+        
+        if (info is EnumArgumentInfo enumArgumentInfo)
+        {
+            builder.AddOption(info.Name, ApplicationCommandOptionType.Integer, info.Description, info.IsRequired, 
+                choices: enumArgumentInfo.Options
+                    .Select(x => new ApplicationCommandOptionChoiceProperties
+                    {
+                        Name = x.Item2,
+                        Value = x.Item1
+                    })
+                    .ToArray());
+            return;
+        }
     }
 
     public Task RunCommand(string command, ICommandContext context)

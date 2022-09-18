@@ -45,6 +45,10 @@ public class TestModule : BaseModule
         yield return new DiscordCommandInfo()
             .WithName("say")
             .WithDescription("what the fuck")
+            .AddEnumArgument("abc", "abcdef", x => x
+                .AddOption(0, "Option 1")
+                .AddOption(1, "Option 2")
+                .AddOption(2, "Option 3"))
             .AddStringArgument("message", "shit wtf")
             .Executes(SayCommand);
     }
